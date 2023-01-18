@@ -17,17 +17,19 @@ Environment objects
 Environment weights based on objects:
     Clear node:         1
 
-    Tree node:          2
-    Stone node:         -
+    Tree node:          3
+    Stone node:         3
 
-    Wood wall node:     5
-    Stone wall node:    10
+    Wood wall node:     7
+    Stone wall node:    12
 
-    Wood spawner node:  -
-    Stone spawner node: -
+    Wood spawner node:  1
+    Stone spawner node: 1
 
 When a node is changed the weights of all connections are changed.
 The weight for a connection between two nodes is the largest weight of the two according to the above info.
+
+When entities move from node to node their speed depends on the weight between those nodes.
 """
 from enum import Enum, auto
 
@@ -48,6 +50,20 @@ The things that each grid square can be.
 
     WOOD_SPAWNER = auto()
     STONE_SPAWNER = auto()
+
+
+TypeToWeight = {
+    GridSquareTypes.CLEAR: 1,
+
+    GridSquareTypes.TREE: 3,
+    GridSquareTypes.STONE: 3,
+
+    GridSquareTypes.WOOD_WALL: 7,
+    GridSquareTypes.STONE_WALL: 12,
+
+    GridSquareTypes.WOOD_SPAWNER: 1,
+    GridSquareTypes.STONE_SPAWNER: 1
+}
 
 
 class GridSquare(AStar.Node):
