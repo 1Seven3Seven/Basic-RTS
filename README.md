@@ -19,4 +19,16 @@ The name inspiration from GitHub is "fluffy-fiesta" and I just love that name, b
     - mines
 - Stone deposits to mine stone from
   - Can be used for better buildings
-- 
+
+## Player Interaction:
+- All player actions create blueprints
+- Blueprints are acted upon by workers
+- The starting base has a certain number of workers
+- The player needs to designate trees to be destroyed to get wood
+- Wood can be used to build a couple of things
+  - Wood walls
+  - Wood spawners
+  - Stone miners
+- Each thing requires a minimum amount of free workers and will not start being worked on until this is met
+- Workers cannot change tasks once a task has started
+  - Includes canceling task for now at least
