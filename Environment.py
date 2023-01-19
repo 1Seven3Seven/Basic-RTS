@@ -31,6 +31,7 @@ The weight for a connection between two nodes is the largest weight of the two a
 
 When entities move from node to node their speed depends on the weight between those nodes.
 """
+
 from enum import Enum, auto
 
 from AStar import Node, NodeGenerator
@@ -38,8 +39,9 @@ from AStar import Node, NodeGenerator
 
 class GridSquareTypes(Enum):
     """
-The things that each grid square can be.
+The state that each grid square can be.
     """
+
     CLEAR = auto()
 
     TREE = auto()
