@@ -33,7 +33,7 @@ When entities move from node to node their speed depends on the weight between t
 """
 from enum import Enum, auto
 
-import AStar
+from AStar import Node, NodeGenerator
 
 
 class GridSquareTypes(Enum):
@@ -66,7 +66,11 @@ TypeToWeight = {
 }
 
 
-class GridSquare(AStar.Node):
+class GridSquare(Node):
+    """
+A node that contains information about the state of the grid square.
+    """
+
     def __init__(self, x_position: int, y_position: int):
         super().__init__(x_position, y_position)
 
@@ -75,5 +79,26 @@ class GridSquare(AStar.Node):
 
 
 class Environment:
-    def __init__(self):
-        pass
+    def __init__(self, x_width: int, y_width: int):
+        self.grid = NodeGenerator.Grid(x_width, y_width, node_class=GridSquare)
+
+    def __getitem__(self, coords: tuple[int, int]) -> GridSquare:
+        """
+Returns the GridSquare at the corresponding coordinates.
+        :param coords: The coordinates of the grid square to lookup.
+        :return: The grid square at the coordinates
+        """
+
+        return self.grid.__getitem__(coords)
+
+    # region - Properties
+
+    @property
+    def x_size(self):
+        return self.grid.x_size
+
+    @property
+    def y_size(self):
+        return self.grid.y_size
+
+    # endregion - Properties
