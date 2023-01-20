@@ -171,6 +171,10 @@ class Environment:
 
         self.player_base_locations: list[tuple[int, int]] = []
 
+        self.natural_structure_seed: int | None = None
+        self.natural_structure_octaves: list[int] | None = None
+        self.tree_noise_map: list[list[float]] | None = None
+
     # region - __Dunders__
 
     def __getitem__(self, coords: tuple[int, int]) -> GridSquare:
@@ -292,10 +296,10 @@ Player bases are a 2x2 sized structure and the location is the top left.
         :param y_location: The y location of the top left of the player base.
         """
 
-        assert x_location >= 0,                 "x location must be larger than 0"
-        assert x_location < self.grid.x_size,   f"x location must be less than the x size {self.grid.x_size}"
-        assert y_location >= 0,                 "y location must be larger than 0"
-        assert y_location < self.grid.y_size,   f"y location must be less than the y size {self.grid.y_size}"
+        assert x_location >= 0, "x location must be larger than 0"
+        assert x_location < self.grid.x_size, f"x location must be less than the x size {self.grid.x_size}"
+        assert y_location >= 0, "y location must be larger than 0"
+        assert y_location < self.grid.y_size, f"y location must be less than the y size {self.grid.y_size}"
 
         self.player_base_locations.append((x_location, y_location))
 
@@ -303,12 +307,20 @@ Player bases are a 2x2 sized structure and the location is the top left.
             for x in range(x_location, x_location + 2):
                 self.grid[x, y].structure = GridSquareStructures.PLAYER_BASE
 
-    def place_natural_structures(self):
+    def re_generate_natural_structures(self):
+        pass
+
+    def generate_natural_structures(self,
+                                    seed: int = 0,
+                                    octaves: list[int] | None = None):
         """
 Places the natural structures in the grid.
 NOTE: Generate terrain should be run first.
 NOTE: Player bases should be set first.
         """
+
+        # Place trees randomly then check if the required number is near the player bases.
+        # Do the same with rocks, although with much less chance
 
         pass
 
