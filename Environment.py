@@ -264,4 +264,30 @@ Generates the terrain for the grid.
         # Terrain has now beem generated
         self.terrain_generated = True
 
+
+    def set_player_base(self, x_location: int, y_location: int):
+        """
+Sets the nodes at the given location to a player base.
+Player bases are a 2x2 sized structure and the location is the top left.
+        :param x_location: The x location of the top left of the player base.
+        :param y_location: The y location of the top left of the player base.
+        """
+
+        assert x_location >= 0,                 "x location must be larger than 0"
+        assert x_location < self.grid.x_size,   f"x location must be less than the x size {self.grid.x_size}"
+        assert y_location >= 0,                 "y location must be larger than 0"
+        assert y_location < self.grid.y_size,   f"y location must be less than the y size {self.grid.y_size}"
+
+        for y in range(y_location, y_location + 2):
+            for x in range(x_location, x_location + 2):
+                self.grid[x, y].structure = GridSquareStructures.PLAYER_BASE
+
+    def place_natural_structures(self):
+        """
+Places the natural structures in the grid.
+NOTE: Generate terrain should be run first.
+        """
+
+        pass
+
     # endregion - Environment setup functions
