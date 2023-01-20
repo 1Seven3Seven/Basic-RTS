@@ -61,29 +61,43 @@ e.g.
     A minimum of 100 trees will spawn in a 30 node radius.
     A minimum of 3 stone deposits will spawn between 20 and 45 nodes away.
 """
-
 from enum import Enum, auto
+from math import sqrt
 
 from AStar import Node, NodeGenerator
+from perlin_noise import PerlinNoise
 
 
 class GridSquareTerrain(Enum):
     """
 The terrain that each grid square can have.
     """
-    
+
     CLEAR = auto()
-    
+
     HILL = auto()
     MOUNTAIN = auto()
+    SNOW = auto()
     RIVER = auto()
-    
+
 
 TerrainToWeight = {
     GridSquareTerrain.CLEAR: 1,
-    
+
     GridSquareTerrain.HILL: 6,
     GridSquareTerrain.MOUNTAIN: 20,
+    GridSquareTerrain.SNOW: 30,
+
+    GridSquareTerrain.RIVER: 10
+}
+
+TerrainToValue = {
+    GridSquareTerrain.CLEAR: 0,
+
+    GridSquareTerrain.HILL: 6,
+    GridSquareTerrain.MOUNTAIN: 20,
+    GridSquareTerrain.SNOW: 30,
+
     GridSquareTerrain.RIVER: 10
 }
 
@@ -97,7 +111,7 @@ The structures that each grid can have.
 
     TREE = auto()
     STONE = auto()
-    
+
     PLAYER_BASE = auto()
 
     WOOD_WALL = auto()
@@ -112,7 +126,7 @@ StructureToWeight = {
 
     GridSquareStructures.TREE: 3,
     GridSquareStructures.STONE: 3,
-    
+
     GridSquareStructures.PLAYER_BASE: 1,
 
     GridSquareStructures.WOOD_WALL: 7,
@@ -130,7 +144,7 @@ A node that contains information about the state of the grid square.
 
     def __init__(self, x_position: int, y_position: int):
         super().__init__(x_position, y_position)
-        
+
         # The terrain of the grid square
         self.terrain: GridSquareTerrain = GridSquareTerrain.CLEAR
 
@@ -142,6 +156,8 @@ class Environment:
     def __init__(self, width: int, height: int):
         self.grid: NodeGenerator.Grid = NodeGenerator.Grid(width, height, node_class=GridSquare)
 
+    # region - __Dunders__
+
     def __getitem__(self, coords: tuple[int, int]) -> GridSquare:
         """
 Returns the GridSquare at the corresponding coordinates.
@@ -150,6 +166,8 @@ Returns the GridSquare at the corresponding coordinates.
         """
 
         return self.grid.__getitem__(coords)
+
+    # endregion - __Dunders__
 
     # region - Properties
 
@@ -163,3 +181,65 @@ Returns the GridSquare at the corresponding coordinates.
 
     # endregion - Properties
 
+    # region - Environment setup functions
+
+    def generate_terrain(self,
+                         seed: int = 0,
+                         octaves: list[int] | None = None,
+                         snow_height: float = 0.9,
+                         mountain_height: float = 0.75,
+                         hill_height: float = 0.5):
+        """
+Generates the terrain for the grid.
+        :param seed: The seed to use for the perlin noise generator.
+        :param octaves: A list of the octaves to use when generating terrain, should be in increasing order.
+        :param snow_height: The minimum value for snow, > mountain height and <= 1.
+        :param mountain_height: The minimum value for mountains, > hill height and < snow height.
+        :param hill_height: The minimum value for hills, >= 0 and < mountain height.
+        """
+
+        octaves = [3, 6, 12, 24] if octaves is None else octaves
+
+        all_noise = [PerlinNoise(octaves=octave, seed=seed) for octave in octaves]
+
+        center_x, center_y = self.grid.x_size / 2, self.grid.y_size / 2
+
+        largest = sqrt(center_x * center_x + center_y * center_y)
+
+        # Generate the picture
+        picture = []
+        for y in range(self.grid.y_size):
+            row = []
+
+            for x in range(self.grid.x_size):
+                value = largest - sqrt((x - center_x) ** 2 + (y - center_y) ** 2)
+                value /= largest
+
+                for i, noise in enumerate(all_noise, start=2):
+                    value += noise([x / self.grid.x_size, y / self.grid.y_size]) / i
+
+                row.append(value)
+
+            picture.append(row)
+
+        # Normalise the picture to between 0 and 1
+        abs_min_value = abs(min([min(row) for row in picture]))
+        picture = [[pixel + abs_min_value for pixel in row] for row in picture]
+        max_value = abs(max([max(row) for row in picture]))
+        picture = [[pixel / max_value for pixel in row] for row in picture]
+
+        # Set the terrain depending on the picture values
+        for y in range(self.grid.y_size):
+            for x in range(self.grid.x_size):
+                value = picture[y][x]
+                terrain_type = GridSquareTerrain.CLEAR
+                if value > snow_height:
+                    terrain_type = GridSquareTerrain.SNOW
+                elif value > mountain_height:
+                    terrain_type = GridSquareTerrain.MOUNTAIN
+                elif value > hill_height:
+                    terrain_type = GridSquareTerrain.HILL
+
+                self.grid[x, y].terrain = terrain_type
+
+    # endregion - Environment setup functions
