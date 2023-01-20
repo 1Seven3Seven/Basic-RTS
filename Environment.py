@@ -156,6 +156,10 @@ class Environment:
     def __init__(self, width: int, height: int):
         self.grid: NodeGenerator.Grid = NodeGenerator.Grid(width, height, node_class=GridSquare)
 
+        self.terrain_seed: int | None = None
+        self.terrain_octaves: list[int] | None = None
+        self.terrain_noise_map: list[list[float]] | None = None
+
     # region - __Dunders__
 
     def __getitem__(self, coords: tuple[int, int]) -> GridSquare:
@@ -198,16 +202,22 @@ Generates the terrain for the grid.
         :param hill_height: The minimum value for hills, >= 0 and < mountain height.
         """
 
-        octaves = [3, 6, 12, 24] if octaves is None else octaves
+        assert snow_height <= 1, "Snow height must be <= 1"
+        assert snow_height > mountain_height, "Snow height must be larger than mountain height"
+        assert mountain_height > hill_height, "Mountain height must be larger than hill height"
+        assert hill_height >= 0, "Hill height must be >= 0"
 
+        self.terrain_seed = seed
+
+        self.terrain_octaves = [3, 6, 12, 24] if octaves is None else octaves
+
+        # Setup
         all_noise = [PerlinNoise(octaves=octave, seed=seed) for octave in octaves]
-
         center_x, center_y = self.grid.x_size / 2, self.grid.y_size / 2
-
         largest = sqrt(center_x * center_x + center_y * center_y)
 
         # Generate the picture
-        picture = []
+        self.terrain_noise_map = []
         for y in range(self.grid.y_size):
             row = []
 
@@ -220,18 +230,19 @@ Generates the terrain for the grid.
 
                 row.append(value)
 
-            picture.append(row)
+            self.terrain_noise_map.append(row)
 
         # Normalise the picture to between 0 and 1
-        abs_min_value = abs(min([min(row) for row in picture]))
-        picture = [[pixel + abs_min_value for pixel in row] for row in picture]
-        max_value = abs(max([max(row) for row in picture]))
-        picture = [[pixel / max_value for pixel in row] for row in picture]
+        abs_min_value = abs(min([min(row) for row in self.terrain_noise_map]))
+        self.terrain_noise_map = [[pixel + abs_min_value for pixel in row] for row in self.terrain_noise_map]
+        max_value = abs(max([max(row) for row in self.terrain_noise_map]))
+        self.terrain_noise_map = [[pixel / max_value for pixel in row] for row in self.terrain_noise_map]
 
         # Set the terrain depending on the picture values
         for y in range(self.grid.y_size):
             for x in range(self.grid.x_size):
-                value = picture[y][x]
+                value = self.terrain_noise_map[y][x]
+
                 terrain_type = GridSquareTerrain.CLEAR
                 if value > snow_height:
                     terrain_type = GridSquareTerrain.SNOW
