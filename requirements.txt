@@ -1,1 +1,2 @@
-perlin-noise>=1.12
+perlin-noise~=1.12
+AStar~=1.0
