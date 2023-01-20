@@ -166,6 +166,7 @@ class Environment:
         self.terrain_seed: int | None = None
         self.terrain_octaves: list[int] | None = None
         self.terrain_noise_map: list[list[float]] | None = None
+        self.terrain_heights: dict[GridSquareTerrain, float] | None = None
         self.terrain_generated: bool = False
 
         self.player_base_locations: list[tuple[int, int]] = []
@@ -197,32 +198,16 @@ Returns the GridSquare at the corresponding coordinates.
 
     # region - Environment setup functions
 
-    def generate_terrain(self,
-                         seed: int = 0,
-                         octaves: list[int] | None = None,
-                         snow_height: float = 0.9,
-                         mountain_height: float = 0.75,
-                         hill_height: float = 0.5):
+    def re_generate_terrain(self):
         """
-Generates the terrain for the grid.
-        :param seed: The seed to use for the perlin noise generator.
-        :param octaves: A list of the octaves to use when generating terrain, should be in increasing order.
-        :param snow_height: The minimum value for snow, > mountain height and <= 1.
-        :param mountain_height: The minimum value for mountains, > hill height and < snow height.
-        :param hill_height: The minimum value for hills, >= 0 and < mountain height.
+Re-generated the terrain based off of the saved information after generate terrain is called.
+Should reset everything to the starting state.
         """
 
-        assert snow_height <= 1, "Snow height must be <= 1"
-        assert snow_height > mountain_height, "Snow height must be larger than mountain height"
-        assert mountain_height > hill_height, "Mountain height must be larger than hill height"
-        assert hill_height >= 0, "Hill height must be >= 0"
-
-        self.terrain_seed = seed
-
-        self.terrain_octaves = [3, 6, 12, 24] if octaves is None else octaves
+        assert self.terrain_generated, "generate terrain must be called first"
 
         # Setup
-        all_noise = [PerlinNoise(octaves=octave, seed=seed) for octave in octaves]
+        all_noise = [PerlinNoise(octaves=octave, seed=self.terrain_seed) for octave in self.terrain_octaves]
         center_x, center_y = self.grid.x_size / 2, self.grid.y_size / 2
         largest = sqrt(center_x * center_x + center_y * center_y)
 
@@ -254,18 +239,50 @@ Generates the terrain for the grid.
                 value = self.terrain_noise_map[y][x]
 
                 terrain_type = GridSquareTerrain.CLEAR
-                if value > snow_height:
+                if value > self.terrain_heights[GridSquareTerrain.SNOW]:
                     terrain_type = GridSquareTerrain.SNOW
-                elif value > mountain_height:
+                elif value > self.terrain_heights[GridSquareTerrain.MOUNTAIN]:
                     terrain_type = GridSquareTerrain.MOUNTAIN
-                elif value > hill_height:
+                elif value > self.terrain_heights[GridSquareTerrain.HILL]:
                     terrain_type = GridSquareTerrain.HILL
 
                 self.grid[x, y].terrain = terrain_type
 
-        # Terrain has now beem generated
+    def generate_terrain(self,
+                         seed: int = 0,
+                         octaves: list[int] | None = None,
+                         snow_height: float = 0.9,
+                         mountain_height: float = 0.75,
+                         hill_height: float = 0.5):
+        """
+Generates the terrain for the grid.
+Saves the information used to generate the information.
+        :param seed: The seed to use for the perlin noise generator.
+        :param octaves: A list of the octaves to use when generating terrain, should be in increasing order.
+        :param snow_height: The minimum value for snow, > mountain height and <= 1.
+        :param mountain_height: The minimum value for mountains, > hill height and < snow height.
+        :param hill_height: The minimum value for hills, >= 0 and < mountain height.
+        """
+
+        assert snow_height <= 1, "Snow height must be <= 1"
+        assert snow_height > mountain_height, "Snow height must be larger than mountain height"
+        assert mountain_height > hill_height, "Mountain height must be larger than hill height"
+        assert hill_height >= 0, "Hill height must be >= 0"
+
+        # Save all the information
+        self.terrain_seed = seed
+
+        self.terrain_octaves = [3, 6, 12, 24] if octaves is None else octaves
+
+        self.terrain_heights[GridSquareTerrain.SNOW] = snow_height
+        self.terrain_heights[GridSquareTerrain.MOUNTAIN] = mountain_height
+        self.terrain_heights[GridSquareTerrain.HILL] = hill_height
+
+        # Terrain has now been generated
         self.terrain_generated = True
 
+        # Generate the terrain
+        self.re_generate_terrain()
 
     def set_player_base(self, x_location: int, y_location: int):
         """
