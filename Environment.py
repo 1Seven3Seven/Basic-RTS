@@ -43,10 +43,17 @@ Node weights based on objects:
     
         Wood spawner node:      1
         Stone spawner node:     1
-        
-Stone deposits are much more likely on mountains and hills.
-Trees and stone deposits are impossible on river.
-    
+
+Trees are most common on clear terrain.
+Trees are a little less common on hilly terrain.
+Trees are uncommon on mountain terrain.
+Trees never appear on snow or river.
+
+Stone deposits are uncommon on clear terrain.
+Stone deposits are more common on hilly terrain.
+Stone deposits are much more likely on mountains.
+Stone never appears on snow or river.
+
 The player bases are a 2x2 object, each one can spawn one worker.
 
 When a node is changed the weights of all connections are changed.
@@ -159,6 +166,7 @@ class Environment:
         self.terrain_seed: int | None = None
         self.terrain_octaves: list[int] | None = None
         self.terrain_noise_map: list[list[float]] | None = None
+        self.terrain_generated: bool = False
 
     # region - __Dunders__
 
@@ -252,5 +260,8 @@ Generates the terrain for the grid.
                     terrain_type = GridSquareTerrain.HILL
 
                 self.grid[x, y].terrain = terrain_type
+
+        # Terrain has now beem generated
+        self.terrain_generated = True
 
     # endregion - Environment setup functions
