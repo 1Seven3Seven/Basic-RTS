@@ -168,6 +168,8 @@ class Environment:
         self.terrain_noise_map: list[list[float]] | None = None
         self.terrain_generated: bool = False
 
+        self.player_base_locations: list[tuple[int, int]] = []
+
     # region - __Dunders__
 
     def __getitem__(self, coords: tuple[int, int]) -> GridSquare:
@@ -278,6 +280,8 @@ Player bases are a 2x2 sized structure and the location is the top left.
         assert y_location >= 0,                 "y location must be larger than 0"
         assert y_location < self.grid.y_size,   f"y location must be less than the y size {self.grid.y_size}"
 
+        self.player_base_locations.append((x_location, y_location))
+
         for y in range(y_location, y_location + 2):
             for x in range(x_location, x_location + 2):
                 self.grid[x, y].structure = GridSquareStructures.PLAYER_BASE
@@ -286,6 +290,7 @@ Player bases are a 2x2 sized structure and the location is the top left.
         """
 Places the natural structures in the grid.
 NOTE: Generate terrain should be run first.
+NOTE: Player bases should be set first.
         """
 
         pass
