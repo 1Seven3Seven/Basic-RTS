@@ -278,9 +278,11 @@ Saves the information used to generate the information.
 
         self.terrain_octaves = [3, 6, 12, 24] if octaves is None else octaves
 
-        self.terrain_heights[GridSquareTerrain.SNOW] = snow_height
-        self.terrain_heights[GridSquareTerrain.MOUNTAIN] = mountain_height
-        self.terrain_heights[GridSquareTerrain.HILL] = hill_height
+        self.terrain_heights = {
+            GridSquareTerrain.SNOW: snow_height,
+            GridSquareTerrain.MOUNTAIN: mountain_height,
+            GridSquareTerrain.HILL: hill_height
+        }
 
         # Terrain has now been generated
         self.terrain_generated = True
