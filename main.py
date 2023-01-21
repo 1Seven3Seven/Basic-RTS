@@ -4,7 +4,7 @@ from time import perf_counter_ns
 import pygame
 from pygame.locals import *
 
-from Environment import Environment, GridSquareTerrain
+from Environment import Environment, GridSquareTerrain, GridSquareStructures
 
 
 def upon_exit():
@@ -26,22 +26,38 @@ def main():
     # endregion - Initializing pygame
 
     # Environment
+    seed = 1
     env = Environment(100, 100)
-    env.generate_terrain()
+    env.generate_terrain(seed=seed)
 
-    # Colours
-    colours = {
+    env.set_player_base(1, 1)
+    env.set_player_base(env.x_size - 3, env.y_size - 3)
+
+    env.generate_natural_structures(seed=seed)
+
+    # region - Colours
+    terrain_colours = {
         GridSquareTerrain.CLEAR: (70, 110, 45),
         GridSquareTerrain.HILL: (50, 80, 50),
         GridSquareTerrain.MOUNTAIN: (50, 55, 70),
         GridSquareTerrain.SNOW: (255, 255, 255)
     }
 
+    structure_colours = {
+        GridSquareStructures.PLAYER_BASE: (255, 0, 0),
+        GridSquareStructures.TREE: (0, 255, 0),
+        GridSquareStructures.STONE: (0, 0, 255)
+    }
+    # endregion
+
     # Environment map
     env_map = pygame.Surface((env.x_size, env.y_size))
     for x in range(env.x_size):
         for y in range(env.y_size):
-            env_map.set_at((x, y), colours[env[x, y].terrain])
+            if env.grid[x, y].structure == GridSquareStructures.NONE:
+                env_map.set_at((x, y), terrain_colours[env[x, y].terrain])
+            else:
+                env_map.set_at((x, y), structure_colours[env[x, y].structure])
 
     # Environment map scale and position
     scale = 3
@@ -68,7 +84,6 @@ def main():
             if event.type == MOUSEWHEEL:
                 scale_changed = True
                 scale += event.y / 10
-
 
         screen.fill((0, 0, 0))
 
@@ -101,7 +116,6 @@ def main():
         clock.tick(60)
         old_time = current_time
         pygame.display.set_caption(f"FPS: {fps}")
-
 
 
 if __name__ == "__main__":
