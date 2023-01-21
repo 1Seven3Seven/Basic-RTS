@@ -33,7 +33,7 @@ def main():
     env.set_player_base(1, 1)
     env.set_player_base(env.x_size - 3, env.y_size - 3)
 
-    env.generate_natural_structures(seed=seed)
+    env.generate_natural_structures(tree_seed=seed, stone_seed=seed)
 
     # region - Colours
     terrain_colours = {
@@ -60,8 +60,13 @@ def main():
                 env_map.set_at((x, y), structure_colours[env[x, y].structure])
 
     # Environment map scale and position
-    scale = 3
+    scale = 7
+    min_scale = 7
+    max_scale = 48
+    new_size = (round(env.x_size * scale), round(env.y_size * scale))
     position = [window_size[0] / 2 - env.x_size * scale / 2, window_size[1] / 2 - env.y_size * scale / 2]
+
+    scaled_env_map = pygame.transform.scale(env_map, new_size)
 
     # Timings
     current_time = perf_counter_ns()
@@ -81,9 +86,29 @@ def main():
                 if event.key == K_ESCAPE:
                     upon_exit()
 
+                if event.key == K_SPACE:
+                    print("Generating new terrain")
+                    seed += 1
+                    env = Environment(100, 100)
+                    env.generate_terrain(seed=seed)
+                    env.set_player_base(1, 1)
+                    env.set_player_base(env.x_size - 3, env.y_size - 3)
+                    env.generate_natural_structures(tree_seed=seed, stone_seed=seed)
+                    for x in range(env.x_size):
+                        for y in range(env.y_size):
+                            if env.grid[x, y].structure == GridSquareStructures.NONE:
+                                env_map.set_at((x, y), terrain_colours[env[x, y].terrain])
+                            else:
+                                env_map.set_at((x, y), structure_colours[env[x, y].structure])
+                    scaled_env_map = pygame.transform.scale(env_map, new_size)
+
             if event.type == MOUSEWHEEL:
                 scale_changed = True
-                scale += event.y / 10
+                scale += event.y
+                if scale < min_scale:
+                    scale = min_scale
+                elif scale > max_scale:
+                    scale = max_scale
 
         screen.fill((0, 0, 0))
 
@@ -99,13 +124,13 @@ def main():
         if pressed[K_s]:
             position[1] -= 1 * scale
 
-        new_size = (round(env.x_size * scale), round(env.y_size * scale))
-
         if scale_changed:
-            position[0] += (old_size[0] - new_size[0]) / 2
-            position[1] += (old_size[1] - new_size[1]) / 2
+            position[0] -= (old_size[0] - new_size[0])
+            position[1] -= (old_size[1] - new_size[1])
+            new_size = (round(env.x_size * scale), round(env.y_size * scale))
+            scaled_env_map = pygame.transform.scale(env_map, new_size)
 
-        screen.blit(pygame.transform.scale(env_map, new_size), position)
+        screen.blit(scaled_env_map, position)
 
         old_size = new_size
         """ABOVE"""
