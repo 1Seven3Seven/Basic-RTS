@@ -177,7 +177,10 @@ class Environment:
         self.natural_structures_noise_map: list[list[float]] | None = None
         self.natural_structures_generated: bool = False
         self.base_tree_radius: int | None = None
-        self.base_tree_amount: int | None = None
+        self.base_tree_min_amount: int | None = None
+        self.clear_tree_base_chance: int | None = None
+        self.hill_tree_base_chance: int | None = None
+        self.mountain_tree_base_chance: int | None = None
 
     # region - __Dunders__
 
@@ -313,14 +316,7 @@ Player bases are a 2x2 sized structure and the location is the top left.
             for x in range(x_location, x_location + 2):
                 self.grid[x, y].structure = GridSquareStructures.PLAYER_BASE
 
-    def re_generate_natural_structures(self):
-        """
-Re-generated the natural structures based off of the saved information after generate natural structures is called.
-Should reset everything to the starting state.
-        """
-
-        assert self.natural_structures_generated, "generate natural structures must be called first."
-
+    def _generate_trees(self):
         # Create circles around the player bases with high intensities
         # And adjust intensity depending on the terrain
         self.natural_structures_noise_map = []
@@ -332,11 +328,11 @@ Should reset everything to the starting state.
                 # Terrain intensity
                 terrain = self.grid[x, y].terrain
                 if terrain == GridSquareTerrain.CLEAR:
-                    row[-1] = 0.05
+                    row[-1] = self.clear_tree_base_chance
                 elif terrain == GridSquareTerrain.HILL:
-                    row[-1] = 0.01
+                    row[-1] = self.hill_tree_base_chance
                 elif terrain == GridSquareTerrain.MOUNTAIN:
-                    row[-1] = 0.001
+                    row[-1] = self.mountain_tree_base_chance
 
                 # Base intensity
                 for location in self.player_base_locations:
@@ -345,8 +341,6 @@ Should reset everything to the starting state.
                     if distance < self.base_tree_radius and distance != 0:
                         row[-1] = 0.25
                         break
-
-
 
             self.natural_structures_noise_map.append(row)
 
@@ -381,11 +375,29 @@ Should reset everything to the starting state.
                 if number < self.natural_structures_noise_map[y][x]:
                     self.grid[x, y].structure = GridSquareStructures.TREE
 
+    def _generate_stone_deposits(self):
+        pass
+
+    def re_generate_natural_structures(self):
+        """
+Re-generated the natural structures based off of the saved information after generate natural structures is called.
+Should reset everything to the starting state.
+        """
+
+        assert self.natural_structures_generated, "generate natural structures must be called first."
+
+        self._generate_trees()
+        self._generate_stone_deposits()
+
     def generate_natural_structures(self,
                                     seed: int = 0,
                                     octaves: list[int] | None = None,
                                     base_tree_radius: int = 30,
-                                    base_tree_amount: int = 100):
+                                    base_tree_min_amount: int = 100,
+                                    clear_tree_base_chance: int = 0.1,
+                                    hill_tree_base_chance: int = 0.05,
+                                    mountain_tree_base_chance: int = 0.001
+                                    ):
         """
 Places the natural structures in the grid.
 NOTE: Generate terrain should be run first.
@@ -401,7 +413,11 @@ NOTE: Player bases should be set first.
         self.natural_structures_octaves = [5, 10] if octaves is None else octaves
 
         self.base_tree_radius = base_tree_radius
-        self.base_tree_amount = base_tree_amount
+        self.base_tree_min_amount = base_tree_min_amount
+
+        self.clear_tree_base_chance = clear_tree_base_chance
+        self.hill_tree_base_chance = hill_tree_base_chance
+        self.mountain_tree_base_chance = mountain_tree_base_chance
 
         # Natural structures now generated
         self.natural_structures_generated = True
