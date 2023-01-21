@@ -51,6 +51,9 @@ def main():
     current_time = perf_counter_ns()
     old_time = current_time
 
+    #
+    old_size = (round(env.x_size * scale), round(env.y_size * scale))
+
     # Main loop
     while True:
         scale_changed = False
@@ -64,7 +67,6 @@ def main():
 
             if event.type == MOUSEWHEEL:
                 scale_changed = True
-                scale_changed_by = event.y
                 scale += event.y / 10
 
 
