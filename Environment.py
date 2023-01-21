@@ -176,8 +176,9 @@ class Environment:
         self.natural_structures_octaves: list[int] | None = None
         self.natural_structures_noise_map: list[list[float]] | None = None
         self.natural_structures_generated: bool = False
-        self.base_tree_radius: int | None = None
-        self.base_tree_min_amount: int | None = None
+        self.player_base_tree_radius: int | None = None
+        self.player_base_tree_min_amount: int | None = None
+        self.player_base_tree_base_chance: int | None = None
         self.clear_tree_base_chance: int | None = None
         self.hill_tree_base_chance: int | None = None
         self.mountain_tree_base_chance: int | None = None
@@ -338,8 +339,8 @@ Player bases are a 2x2 sized structure and the location is the top left.
                 for location in self.player_base_locations:
                     distance = sqrt((location[0] - x) ** 2 + (location[1] - y) ** 2)
 
-                    if distance < self.base_tree_radius and distance != 0:
-                        row[-1] = 0.25
+                    if distance < self.player_base_tree_radius and distance != 0:
+                        row[-1] = self.player_base_tree_base_chance
                         break
 
             self.natural_structures_noise_map.append(row)
@@ -392,8 +393,9 @@ Should reset everything to the starting state.
     def generate_natural_structures(self,
                                     seed: int = 0,
                                     octaves: list[int] | None = None,
-                                    base_tree_radius: int = 30,
-                                    base_tree_min_amount: int = 100,
+                                    player_base_tree_radius: int = 30,
+                                    player_base_tree_min_amount: int = 100,
+                                    player_base_tree_base_chance: int = 0.25,
                                     clear_tree_base_chance: int = 0.1,
                                     hill_tree_base_chance: int = 0.05,
                                     mountain_tree_base_chance: int = 0.001
@@ -412,9 +414,10 @@ NOTE: Player bases should be set first.
 
         self.natural_structures_octaves = [5, 10] if octaves is None else octaves
 
-        self.base_tree_radius = base_tree_radius
-        self.base_tree_min_amount = base_tree_min_amount
+        self.player_base_tree_radius = player_base_tree_radius
+        self.player_base_tree_min_amount = player_base_tree_min_amount
 
+        self.player_base_tree_base_chance = player_base_tree_base_chance
         self.clear_tree_base_chance = clear_tree_base_chance
         self.hill_tree_base_chance = hill_tree_base_chance
         self.mountain_tree_base_chance = mountain_tree_base_chance
