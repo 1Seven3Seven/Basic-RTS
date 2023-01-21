@@ -68,6 +68,7 @@ e.g.
     A minimum of 100 trees will spawn in a 30 node radius.
     A minimum of 3 stone deposits will spawn between 20 and 45 nodes away.
 """
+import random
 from enum import Enum, auto
 from math import sqrt
 
@@ -171,9 +172,12 @@ class Environment:
 
         self.player_base_locations: list[tuple[int, int]] = []
 
-        self.natural_structure_seed: int | None = None
-        self.natural_structure_octaves: list[int] | None = None
-        self.tree_noise_map: list[list[float]] | None = None
+        self.natural_structures_seed: int | None = None
+        self.natural_structures_octaves: list[int] | None = None
+        self.natural_structures_noise_map: list[list[float]] | None = None
+        self.natural_structures_generated: bool = False
+        self.base_tree_radius: int | None = None
+        self.base_tree_amount: int | None = None
 
     # region - __Dunders__
 
@@ -310,11 +314,78 @@ Player bases are a 2x2 sized structure and the location is the top left.
                 self.grid[x, y].structure = GridSquareStructures.PLAYER_BASE
 
     def re_generate_natural_structures(self):
-        pass
+        """
+Re-generated the natural structures based off of the saved information after generate natural structures is called.
+Should reset everything to the starting state.
+        """
+
+        assert self.natural_structures_generated, "generate natural structures must be called first."
+
+        # Create circles around the player bases with high intensities
+        # And adjust intensity depending on the terrain
+        self.natural_structures_noise_map = []
+        for y in range(self.grid.y_size):
+            row = []
+
+            for x in range(self.grid.x_size):
+                row.append(0)
+                # Terrain intensity
+                terrain = self.grid[x, y].terrain
+                if terrain == GridSquareTerrain.CLEAR:
+                    row[-1] = 0.05
+                elif terrain == GridSquareTerrain.HILL:
+                    row[-1] = 0.01
+                elif terrain == GridSquareTerrain.MOUNTAIN:
+                    row[-1] = 0.001
+
+                # Base intensity
+                for location in self.player_base_locations:
+                    distance = sqrt((location[0] - x) ** 2 + (location[1] - y) ** 2)
+
+                    if distance < self.base_tree_radius and distance != 0:
+                        row[-1] = 0.25
+                        break
+
+
+
+            self.natural_structures_noise_map.append(row)
+
+        # Add in some perlin noise
+        all_noise = [
+            PerlinNoise(octaves=octave, seed=self.natural_structures_seed) for octave in self.natural_structures_octaves
+        ]
+        for y in range(self.grid.y_size):
+            for x in range(self.grid.x_size):
+                for i, noise in enumerate(all_noise, start=2):
+                    self.natural_structures_noise_map[y][x] += noise([x / self.grid.x_size, y / self.grid.y_size]) / i
+
+        # Normalise
+        max_value = max([max(row) for row in self.natural_structures_noise_map])
+        self.natural_structures_noise_map = [
+            [value / max_value for value in row] for row in self.natural_structures_noise_map
+        ]
+
+        # Generate the trees
+        random.seed(self.natural_structures_seed)
+
+        for y in range(self.grid.y_size):
+            for x in range(self.grid.x_size):
+                number = random.random()
+
+                if self.grid[x, y].structure != GridSquareStructures.NONE:
+                    continue
+
+                if self.grid[x, y].terrain in (GridSquareTerrain.SNOW, GridSquareTerrain.RIVER):
+                    continue
+
+                if number < self.natural_structures_noise_map[y][x]:
+                    self.grid[x, y].structure = GridSquareStructures.TREE
 
     def generate_natural_structures(self,
                                     seed: int = 0,
-                                    octaves: list[int] | None = None):
+                                    octaves: list[int] | None = None,
+                                    base_tree_radius: int = 30,
+                                    base_tree_amount: int = 100):
         """
 Places the natural structures in the grid.
 NOTE: Generate terrain should be run first.
@@ -324,6 +395,18 @@ NOTE: Player bases should be set first.
         # Place trees randomly then check if the required number is near the player bases.
         # Do the same with rocks, although with much less chance
 
-        pass
+        # Saving information
+        self.natural_structures_seed = seed
+
+        self.natural_structures_octaves = [5, 10] if octaves is None else octaves
+
+        self.base_tree_radius = base_tree_radius
+        self.base_tree_amount = base_tree_amount
+
+        # Natural structures now generated
+        self.natural_structures_generated = True
+
+        # Generate stuff
+        self.re_generate_natural_structures()
 
     # endregion - Environment setup functions
