@@ -340,21 +340,24 @@ Player bases are a 2x2 sized structure and the location is the top left.
 
     # region - Generating natural structures
 
-    def _generate_trees(self):
-        # Create circles around the player bases with high intensities
-        # And adjust intensity depending on the terrain
+    def _generate_tree_noise_map(self):
         self.tree_noise_map = []
+
         for y in range(self.grid.y_size):
             row = []
 
             for x in range(self.grid.x_size):
                 row.append(0)
+
                 # Terrain intensity
                 terrain = self.grid[x, y].terrain
+
                 if terrain == GridSquareTerrain.CLEAR:
                     row[-1] = self.clear_tree_base_chance
+
                 elif terrain == GridSquareTerrain.HILL:
                     row[-1] = self.hill_tree_base_chance
+
                 elif terrain == GridSquareTerrain.MOUNTAIN:
                     row[-1] = self.mountain_tree_base_chance
 
@@ -369,9 +372,8 @@ Player bases are a 2x2 sized structure and the location is the top left.
             self.tree_noise_map.append(row)
 
         # Add in some perlin noise
-        all_noise = [
-            PerlinNoise(octaves=octave, seed=self.tree_seed) for octave in self.tree_octaves
-        ]
+        all_noise = [PerlinNoise(octaves=octave, seed=self.tree_seed) for octave in self.tree_octaves]
+
         for y in range(self.grid.y_size):
             for x in range(self.grid.x_size):
                 for i, noise in enumerate(all_noise, start=2):
@@ -379,10 +381,9 @@ Player bases are a 2x2 sized structure and the location is the top left.
 
         # Normalise
         max_value = max([max(row) for row in self.tree_noise_map])
-        self.tree_noise_map = [
-            [value / max_value for value in row] for row in self.tree_noise_map
-        ]
+        self.tree_noise_map = [[value / max_value for value in row] for row in self.tree_noise_map]
 
+    def _generate_trees(self):
         # Generate the trees
         random.seed(self.tree_seed)
 
@@ -462,7 +463,9 @@ Should reset everything to the starting state.
 
         assert self.natural_structures_generated, "generate natural structures must be called first."
 
+        self._generate_tree_noise_map()
         self._generate_trees()
+
         self._generate_stone_deposits()
 
     def generate_natural_structures(
