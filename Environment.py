@@ -344,7 +344,9 @@ Player bases are a 2x2 sized structure and the location is the top left.
 
     # region - Generating natural structures
 
-    def _generate_tree_noise_map(self):
+    # region - Generating trees
+
+    def generate_tree_noise_map(self):
         self.tree_noise_map = []
 
         for y in range(self.grid.y_size):
@@ -387,7 +389,7 @@ Player bases are a 2x2 sized structure and the location is the top left.
         max_value = max([max(row) for row in self.tree_noise_map])
         self.tree_noise_map = [[value / max_value for value in row] for row in self.tree_noise_map]
 
-    def _generate_trees(self):
+    def generate_trees(self):
         # Generate the trees
         random.seed(self.tree_seed)
 
@@ -404,7 +406,11 @@ Player bases are a 2x2 sized structure and the location is the top left.
                 if number < self.tree_noise_map[y][x]:
                     self.grid[x, y].structure = GridSquareStructures.TREE
 
-    def _generate_stone_deposit_noise_map(self):
+    # endregion - Generating trees
+
+    # region - Generating stone deposits
+
+    def generate_stone_deposit_noise_map(self):
         # Setup
         all_noise = [PerlinNoise(octaves=octave, seed=self.stone_seed) for octave in self.stone_octaves]
 
@@ -453,7 +459,7 @@ Player bases are a 2x2 sized structure and the location is the top left.
                         self.stone_noise_map[y][x] = 0
                         break
 
-    def _generate_stone_deposits(self):
+    def generate_stone_deposits(self):
         # Generate the stone deposits
         for y in range(self.grid.y_size):
             for x in range(self.grid.x_size):
@@ -466,6 +472,8 @@ Player bases are a 2x2 sized structure and the location is the top left.
                 if self.stone_noise_map[y][x] > self.stone_min_value:
                     self.grid[x, y].structure = GridSquareStructures.STONE
 
+    # endregion - Generating stone deposits
+
     def re_generate_natural_structures(self):
         """
 Re-generated the natural structures based off of the saved information after generate natural structures is called.
@@ -474,11 +482,11 @@ Should reset everything to the starting state.
 
         assert self.natural_structures_generated, "generate natural structures must be called first."
 
-        self._generate_tree_noise_map()
-        self._generate_trees()
+        self.generate_tree_noise_map()
+        self.generate_trees()
 
-        self._generate_stone_deposit_noise_map()
-        self._generate_stone_deposits()
+        self.generate_stone_deposit_noise_map()
+        self.generate_stone_deposits()
 
     def generate_natural_structures(
             self,
