@@ -162,9 +162,9 @@ A node that contains information about the state of the grid square.
 
 class Environment:
     # ToDo: Rather than a central mountain, add the ability to designate mountain tops as coordinates
-    # ToDo: Separate generation into different functions, ones to handle the noise maps, and other to handle the spawning
     # ToDo: Min amount of trees around a player base
     # ToDo: Update node connections base on terrain and structures
+    # ToDo: Separate the natural generation functions more, so they can be run by themselves
     def __init__(self, width: int, height: int):
         self.grid: NodeGenerator.Grid = NodeGenerator.Grid(width, height, node_class=GridSquare)
 
