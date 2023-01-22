@@ -185,10 +185,10 @@ class Environment:
         self.tree_noise_map: list[list[float]] | None = None
 
         self.player_base_tree_radius: int | None = None
-        self.player_base_tree_base_chance: int | None = None
-        self.clear_tree_base_chance: int | None = None
-        self.hill_tree_base_chance: int | None = None
-        self.mountain_tree_base_chance: int | None = None
+        self.player_base_tree_base_chance: float | None = None
+        self.clear_tree_base_chance: float | None = None
+        self.hill_tree_base_chance: float | None = None
+        self.mountain_tree_base_chance: float | None = None
 
         # Stone deposit information
         self.stone_seed: int | None = None
@@ -196,9 +196,11 @@ class Environment:
         self.stone_noise_map: list[list[float]] | None = None
 
         self.player_base_stone_radius: int | None = None
-        self.clear_stone_base_chance: int | None = None
-        self.hill_stone_base_chance: int | None = None
-        self.mountain_stone_base_chance: int | None = None
+        self.clear_stone_base_chance: float | None = None
+        self.hill_stone_base_chance: float | None = None
+        self.mountain_stone_base_chance: float | None = None
+        self.snow_stone_base_chance: float | None = None
+        self.stone_min_value: float | None = None
 
     # region - __Dunders__
 
@@ -400,11 +402,13 @@ Player bases are a 2x2 sized structure and the location is the top left.
                 if number < self.tree_noise_map[y][x]:
                     self.grid[x, y].structure = GridSquareStructures.TREE
 
-    def _generate_stone_deposits(self):
+    def _generate_stone_deposit_noise_map(self):
         # Setup
         all_noise = [PerlinNoise(octaves=octave, seed=self.stone_seed) for octave in self.stone_octaves]
 
+        # Create the perlin noise
         self.stone_noise_map = []
+
         for y in range(self.grid.y_size):
             row = []
 
@@ -413,14 +417,6 @@ Player bases are a 2x2 sized structure and the location is the top left.
 
                 for i, noise in enumerate(all_noise, start=2):
                     value += noise([x / self.grid.x_size, y / self.grid.y_size]) / i
-
-                # Not close to bases
-                for location in self.player_base_locations:
-                    distance = sqrt((location[0] - x) ** 2 + (location[1] - y) ** 2)
-
-                    if distance < self.player_base_stone_radius:
-                        value = 0
-                        break
 
                 row.append(value)
 
@@ -432,8 +428,10 @@ Player bases are a 2x2 sized structure and the location is the top left.
         max_value = abs(max([max(row) for row in self.stone_noise_map]))
         self.stone_noise_map = [[pixel / max_value for pixel in row] for row in self.stone_noise_map]
 
+        # Add in the base chances
         for y in range(self.grid.y_size):
             for x in range(self.grid.x_size):
+
                 # Terrain intensity
                 terrain = self.grid[x, y].terrain
                 if terrain == GridSquareTerrain.CLEAR:
@@ -442,17 +440,28 @@ Player bases are a 2x2 sized structure and the location is the top left.
                     self.stone_noise_map[y][x] += self.hill_stone_base_chance
                 elif terrain == GridSquareTerrain.MOUNTAIN:
                     self.stone_noise_map[y][x] += self.mountain_stone_base_chance
+                elif terrain == GridSquareTerrain.SNOW:
+                    self.stone_noise_map[y][x] += self.snow_stone_base_chance
 
+                # Remove close to bases
+                for location in self.player_base_locations:
+                    distance = sqrt((location[0] - x) ** 2 + (location[1] - y) ** 2)
+
+                    if distance < self.player_base_stone_radius:
+                        self.stone_noise_map[y][x] = 0
+                        break
+
+    def _generate_stone_deposits(self):
         # Generate the stone deposits
         for y in range(self.grid.y_size):
             for x in range(self.grid.x_size):
                 if self.grid[x, y].structure != GridSquareStructures.NONE:
                     continue
 
-                if self.grid[x, y].terrain in (GridSquareTerrain.SNOW, GridSquareTerrain.RIVER):
+                if self.grid[x, y].terrain == GridSquareTerrain.RIVER:
                     continue
 
-                if self.stone_noise_map[y][x] > 0.85:
+                if self.stone_noise_map[y][x] > self.stone_min_value:
                     self.grid[x, y].structure = GridSquareStructures.STONE
 
     def re_generate_natural_structures(self):
@@ -466,6 +475,7 @@ Should reset everything to the starting state.
         self._generate_tree_noise_map()
         self._generate_trees()
 
+        self._generate_stone_deposit_noise_map()
         self._generate_stone_deposits()
 
     def generate_natural_structures(
@@ -473,17 +483,19 @@ Should reset everything to the starting state.
             tree_seed: int | None = None,
             tree_octaves: list[int] | None = None,
             player_base_tree_radius: int = 30,
-            player_base_tree_base_chance: int = 0.2,
-            clear_tree_base_chance: int = 0.1,
-            hill_tree_base_chance: int = 0.05,
-            mountain_tree_base_chance: int = 0.001,
+            player_base_tree_base_chance: float = 0.2,
+            clear_tree_base_chance: float = 0.1,
+            hill_tree_base_chance: float = 0.05,
+            mountain_tree_base_chance: float = 0.001,
 
             stone_seed: int | None = None,
             stone_octaves: list[int] | None = None,
             player_base_stone_radius: int = 30,
-            clear_stone_base_chance: int = -0.05,
-            hill_stone_base_chance: int = 0,
-            mountain_stone_base_chance: int = 0.15
+            clear_stone_base_chance: float = -0.05,
+            hill_stone_base_chance: float = 0,
+            mountain_stone_base_chance: float = 0.15,
+            snow_stone_base_chance: float = 0.25,
+            stone_min_value: float = 0.85
     ):
         """
 Places the natural structures in the grid.
@@ -514,6 +526,8 @@ NOTE: Player bases should be set first.
         self.clear_stone_base_chance = clear_stone_base_chance
         self.hill_stone_base_chance = hill_stone_base_chance
         self.mountain_stone_base_chance = mountain_stone_base_chance
+        self.snow_stone_base_chance = snow_stone_base_chance
+        self.stone_min_value = stone_min_value
 
         # Natural structures now generated
         self.natural_structures_generated = True
