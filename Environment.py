@@ -165,6 +165,7 @@ class Environment:
     # ToDo: Min amount of trees around a player base
     # ToDo: Update node connections base on terrain and structures
     # ToDo: Separate the natural generation functions more, so they can be run by themselves
+    # ToDo: DocStrings for the different parameters for the generational functions
     def __init__(self, width: int, height: int):
         self.grid: NodeGenerator.Grid = NodeGenerator.Grid(width, height, node_class=GridSquare)
 
@@ -389,7 +390,18 @@ Player bases are a 2x2 sized structure and the location is the top left.
         max_value = max([max(row) for row in self.tree_noise_map])
         self.tree_noise_map = [[value / max_value for value in row] for row in self.tree_noise_map]
 
-    def generate_trees(self):
+    def re_generate_trees(self):
+        pass
+
+    def generate_trees(self,
+                       tree_seed: int | None = None,
+                       tree_octaves: list[int] | None = None,
+                       player_base_tree_radius: int = 30,
+                       player_base_tree_base_chance: float = 0.2,
+                       clear_tree_base_chance: float = 0.1,
+                       hill_tree_base_chance: float = 0.05,
+                       mountain_tree_base_chance: float = 0.001):
+
         # Generate the trees
         random.seed(self.tree_seed)
 
@@ -459,7 +471,19 @@ Player bases are a 2x2 sized structure and the location is the top left.
                         self.stone_noise_map[y][x] = 0
                         break
 
-    def generate_stone_deposits(self):
+    def re_generate_stone_deposits(self):
+        pass
+
+    def generate_stone_deposits(self,
+                                stone_seed: int | None = None,
+                                stone_octaves: list[int] | None = None,
+                                player_base_stone_radius: int = 30,
+                                clear_stone_base_chance: float = -0.05,
+                                hill_stone_base_chance: float = 0,
+                                mountain_stone_base_chance: float = 0.15,
+                                snow_stone_base_chance: float = 0.25,
+                                stone_min_value: float = 0.85):
+
         # Generate the stone deposits
         for y in range(self.grid.y_size):
             for x in range(self.grid.x_size):
