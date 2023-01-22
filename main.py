@@ -1,13 +1,10 @@
 import sys
-from pprint import pprint
 from time import perf_counter_ns, perf_counter
 
 import pygame
 from pygame.locals import *
 
 from Environment import Environment, GridSquareTerrain, GridSquareStructures
-
-timings: dict[str, float] = {}
 
 
 def upon_exit():
@@ -29,25 +26,25 @@ def main():
     # endregion - Initializing pygame
 
     # Environment
-    timings["whole environment setup"] = perf_counter()
+    everything_start = perf_counter()
     seed = 1
 
-    timings["environment nodes"] = perf_counter()
+    start = perf_counter()
     env = Environment(100, 100)
-    timings["environment nodes"] = perf_counter() - timings["environment nodes"]
+    print("Generating Nodes:".ljust(30), perf_counter() - start, flush=True)
 
-    timings["generating terrain"] = perf_counter()
+    start = perf_counter()
     env.generate_terrain(seed=seed)
-    timings["generating terrain"] = perf_counter() - timings["generating terrain"]
+    print("Generating Terrain:".ljust(30), perf_counter() - start, flush=True)
 
     env.set_player_base(1, 1)
     env.set_player_base(env.x_size - 3, env.y_size - 3)
 
-    timings["generating natural structures"] = perf_counter()
+    start = perf_counter()
     env.generate_natural_structures(tree_seed=seed, stone_seed=seed)
-    timings["generating natural structures"] = perf_counter() - timings["generating natural structures"]
+    print("Generating Natural Structures:".ljust(30), perf_counter() - start, flush=True)
 
-    timings["whole environment setup"] = perf_counter() - timings["whole environment setup"]
+    print("Whole Environment Setup:".ljust(30), perf_counter() - everything_start, flush=True)
 
     # region - Colours
     terrain_colours = {
@@ -65,7 +62,7 @@ def main():
     # endregion
 
     # Environment map
-    timings["environment map"] = perf_counter()
+    start = perf_counter()
     env_map = pygame.Surface((env.x_size, env.y_size))
     for x in range(env.x_size):
         for y in range(env.y_size):
@@ -73,10 +70,7 @@ def main():
                 env_map.set_at((x, y), terrain_colours[env[x, y].terrain])
             else:
                 env_map.set_at((x, y), structure_colours[env[x, y].structure])
-    timings["environment map"] = perf_counter() - timings["environment map"]
-
-    # Printing the timings
-    pprint(timings)
+    print("Creating Environment Map:".ljust(30), perf_counter() - start, flush=True)
 
     # Environment map scale and position
     scale = 7
