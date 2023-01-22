@@ -279,7 +279,7 @@ Should reset everything to the starting state.
                 self.grid[x, y].terrain = terrain_type
 
     def generate_terrain(self,
-                         seed: int | None =  None,
+                         seed: int | None = None,
                          octaves: list[int] | None = None,
                          snow_height: float = 0.9,
                          mountain_height: float = 0.75,
@@ -336,6 +336,8 @@ Player bases are a 2x2 sized structure and the location is the top left.
         for y in range(y_location, y_location + 2):
             for x in range(x_location, x_location + 2):
                 self.grid[x, y].structure = GridSquareStructures.PLAYER_BASE
+
+    # region - Generating natural structures
 
     def _generate_trees(self):
         # Create circles around the player bases with high intensities
@@ -464,7 +466,7 @@ Should reset everything to the starting state.
 
     def generate_natural_structures(
             self,
-            tree_seed: int | None =  None,
+            tree_seed: int | None = None,
             tree_octaves: list[int] | None = None,
             player_base_tree_radius: int = 30,
             player_base_tree_base_chance: int = 0.2,
@@ -472,7 +474,7 @@ Should reset everything to the starting state.
             hill_tree_base_chance: int = 0.05,
             mountain_tree_base_chance: int = 0.001,
 
-            stone_seed: int | None =  None,
+            stone_seed: int | None = None,
             stone_octaves: list[int] | None = None,
             player_base_stone_radius: int = 30,
             clear_stone_base_chance: int = -0.05,
@@ -514,5 +516,7 @@ NOTE: Player bases should be set first.
 
         # Generate stuff
         self.re_generate_natural_structures()
+
+    # endregion - Generating natural structures
 
     # endregion - Environment setup functions
