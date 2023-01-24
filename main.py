@@ -6,6 +6,7 @@ from pygame.locals import *
 
 from Environment import Environment, GridSquareTerrain, GridSquareStructures
 
+# ToDo: Use matplotlib to display the environment
 
 def upon_exit():
     """
