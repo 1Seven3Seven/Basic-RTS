@@ -54,3 +54,10 @@ Please don't set bases where there are already bases, this is undefined behaviou
         for y in range(y_location, y_location + 2):
             for x in range(x_location, x_location + 2):
                 self.grid[x, y].structure = GridSquareStructures.PLAYER_BASE
+
+    def update_node_connections(self):
+        """
+Updates the weights on all node connections based off of the terrain and structure values.
+        """
+
+        ...
