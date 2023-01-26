@@ -15,6 +15,7 @@ def main():
     terrain_generator.generate_noise_map()
     terrain_generator.generate()
 
+    # Colours
     terrain_colours = {
         GridSquareTerrain.CLEAR: (70, 110, 45),
         GridSquareTerrain.HILL: (50, 80, 50),
