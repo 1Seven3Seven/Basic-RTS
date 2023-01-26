@@ -1,3 +1,6 @@
+import math
+
+
 class NoiseMap:
     def __init__(self, x_size: int, y_size: int):
         self._x_size: int = x_size
@@ -69,8 +72,8 @@ Returns all values in the noise map to 0.
 Forces every value to be between 0 and 1, inclusive.
         """
 
-        abs_min_value = abs(min([min(row) for row in self._noise_map]))
+        abs_min_value = abs(min([min([value for value in row if not math.isinf(value)]) for row in self._noise_map]))
         self._noise_map = [[value + abs_min_value for value in row] for row in self._noise_map]
 
-        max_value = max([max(row) for row in self._noise_map])
+        max_value = max([max([value for value in row if not math.isinf(value)]) for row in self._noise_map])
         self._noise_map = [[value / max_value for value in row] for row in self._noise_map]
