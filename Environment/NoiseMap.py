@@ -69,7 +69,7 @@ Returns all values in the noise map to 0.
 Forces every value to be between 0 and 1, inclusive.
         """
 
-        abs_min_value = min([min(row) for row in self._noise_map])
+        abs_min_value = abs(min([min(row) for row in self._noise_map]))
         self._noise_map = [[value + abs_min_value for value in row] for row in self._noise_map]
 
         max_value = max([max(row) for row in self._noise_map])
