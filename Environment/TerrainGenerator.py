@@ -1,3 +1,4 @@
+from copy import copy
 from math import sqrt
 
 from perlin_noise import PerlinNoise
@@ -39,7 +40,7 @@ Separated from the environment code because it got too messy.
 
         self.sanity_check()
 
-        self.noise_map: NoiseMap = NoiseMap(environment.x_size, environment.y_size)
+        self._noise_map: NoiseMap = NoiseMap(environment.x_size, environment.y_size)
 
     # region - Getters
     @property
@@ -61,6 +62,10 @@ Separated from the environment code because it got too messy.
     @property
     def hill_height(self) -> float:
         return self._hill_height
+
+    @property
+    def noise_map(self) -> NoiseMap:
+        return copy(self._noise_map)
 
     # endregion - Getters
 
@@ -143,7 +148,8 @@ Should be called after changing any values.
 
         largest_value = sqrt(center_x * center_x + center_y * center_y)
 
-        self.noise_map.clear()
+        self._noise_map.clear()
+        
         for y in range(self.environment.y_size):
             for x in range(self.environment.x_size):
                 value = largest_value - sqrt((x - center_x) ** 2 + (y - center_y) ** 2)
@@ -152,10 +158,10 @@ Should be called after changing any values.
                 for i, noise in enumerate(all_noise, start=2):
                     value += noise([x / self.environment.x_size, y / self.environment.y_size])
 
-                self.noise_map[x, y] = value
+                self._noise_map[x, y] = value
 
         # Normalise
-        self.noise_map.normalise_values()
+        self._noise_map.normalise_values()
 
         # Now in date
         self.__out_of_date = False
@@ -165,12 +171,12 @@ Should be called after changing any values.
 Sets the terrain parameter in every grid square of the environment according to the noise map.
         """
 
-        assert self.noise_map is not None, "Noise map not generated, please call generate_noise_map before this"
+        assert self._noise_map is not None, "Noise map not generated, please call generate_noise_map before this"
         assert self.__out_of_date, "Current noise map is out of date, please call generate_noise_map before this"
 
         for y in range(self.environment.y_size):
             for x in range(self.environment.x_size):
-                value = self.noise_map[x, y]
+                value = self._noise_map[x, y]
 
                 terrain_type = GridSquareTerrain.CLEAR
                 if value > self._snow_height:
