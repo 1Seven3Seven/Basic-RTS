@@ -43,11 +43,11 @@ Separated from the environment code because it got too messy.
     # region - Getters
     @property
     def seed(self) -> int:
-        return self.seed
+        return self._seed
 
     @property
     def octaves(self) -> list[int]:
-        return self.octaves.copy()
+        return self._octaves.copy()
 
     @property
     def snow_height(self) -> float:
