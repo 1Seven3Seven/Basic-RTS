@@ -164,7 +164,6 @@ Should be called after changing any values.
 Sets the terrain parameter in every grid square of the environment according to the noise map.
         """
 
-        assert self.noise_map is not None, "Noise map not generated, please call generate_noise_map before this"
         assert self.__out_of_date is False, "Current noise map is out of date, please call generate_noise_map before " \
                                             "this"
 
