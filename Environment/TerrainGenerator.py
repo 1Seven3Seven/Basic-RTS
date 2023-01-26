@@ -1,9 +1,8 @@
-from copy import copy
 from math import sqrt
 
 from perlin_noise import PerlinNoise
 
-from . import BaseGenerator, NoiseMap
+from . import BaseGenerator
 from . import Environment
 from .EnvironmentData import GridSquareTerrain
 
@@ -21,7 +20,7 @@ Allows for the generation of terrain for the given environment.
 Separated from the environment code because it got too messy.
         :param environment: The environment to generate the terrain for.
         :param seed: The seed to use when using random numbers. Same seed -> same result.
-        :param octaves: The octaves to use when generating the noise map, in order of strength: 0.5 then 0.25 ...
+        :param octaves: The octaves to use when generating the noise map, in order of strength: 0.5 then 0.25 ... Default is [3, 6, 12, 24]
         :param snow_height: The minimum height for snow.
         :param mountain_height: The minimum height for mountain, must be less than snow height.
         :param hill_height: The minimum height for hill, must be less than mountain height.
