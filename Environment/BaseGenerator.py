@@ -14,7 +14,7 @@ Used to generate specific aspects of the environment, e.g. terrain.
 
         self.environment = environment
 
-        self.noise_map: NoiseMap | None = None
+        self.noise_map: NoiseMap = NoiseMap(environment.x_size, environment.y_size)
 
     def generate_noise_map(self):
         raise NotImplementedError

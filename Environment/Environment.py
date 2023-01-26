@@ -1,7 +1,7 @@
 from AStar import NodeGenerator
 
+from . import GridSquare
 from .EnvironmentData import GridSquareStructures
-from .GridSquare import GridSquare
 
 
 class Environment:
