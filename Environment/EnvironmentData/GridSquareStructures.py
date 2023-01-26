@@ -9,23 +9,26 @@ The structures that each grid can have.
     # Additional attributes
     weight: int
 
-    def __new__(cls, value: str, weight: int = 0) -> 'GridSquareStructures':
-        obj = str.__new__(cls, value)
-        obj._value_ = value
+    def __new__(cls, *args, **kwargs):
+        value = len(cls.__members__) + 1
 
-        obj.weight = weight
+        obj = object.__new__(cls)
+        obj._value_ = value
 
         return obj
 
-    NONE = ('None', 0)
+    def __init__(self, weight: int):
+        self.weight = weight
 
-    TREE = ('Tree', 1)
-    STONE = ('Stone', 1)
+    NONE = 0
 
-    PLAYER_BASE = ('Player Base', 0)
+    TREE = 1
+    STONE = 1
 
-    WOOD_WALL = ('Wood Wall', 8)
-    STONE_WALL = ('Stone Wall', 12)
+    PLAYER_BASE = 0
 
-    WOOD_SPAWNER = ('Wood Spawner', 0)
-    STONE_SPAWNER = ('Stone Spawner', 0)
+    WOOD_WALL = 8
+    STONE_WALL = 12
+
+    WOOD_SPAWNER = 0
+    STONE_SPAWNER = 0
