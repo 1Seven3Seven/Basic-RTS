@@ -268,7 +268,7 @@ Should be called after changing any values.
                     self.noise_map[x, y] += noise([x / self.environment.x_size, y / self.environment.y_size]) / i
 
         # Normalise
-        self.noise_map.normalise_values()
+        self.noise_map.normalise_values(make_min_0=False)
 
         # Now in date
         self.__out_of_date = False
@@ -288,6 +288,9 @@ Ignores any grid squares that already have a structure.
         for y in range(self.environment.y_size):
             for x in range(self.environment.x_size):
                 number = random.random()
+
+                if self.environment[x, y].terrain == GridSquareTerrain.RIVER:
+                    continue
 
                 if self.environment[x, y].structure != GridSquareStructures.NONE:
                     continue
