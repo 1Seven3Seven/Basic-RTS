@@ -150,7 +150,7 @@ Should be called after changing any values.
                 value /= largest_value
 
                 for i, noise in enumerate(all_noise, start=2):
-                    value += noise([x / self.environment.x_size, y / self.environment.y_size])
+                    value += noise([x / self.environment.x_size, y / self.environment.y_size]) / i
 
                 self.noise_map[x, y] = value
 
