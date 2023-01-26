@@ -2,11 +2,12 @@ from math import sqrt
 
 from perlin_noise import PerlinNoise
 
-from .Environment import Environment
+from . import BaseGenerator, NoiseMap
+from . import Environment
 from .EnvironmentData import GridSquareTerrain
 
 
-class TerrainGenerator:
+class TerrainGenerator(BaseGenerator):
     def __init__(self,
                  environment: Environment,
                  seed: int = 1,
@@ -25,7 +26,7 @@ Separated from the environment code because it got too messy.
         :param hill_height: The minimum height for hill, must be less than mountain height.
         """
 
-        self.environment: Environment = environment
+        super().__init__(environment)
 
         self._seed: int = seed
         self._octaves: list[int] = octaves if octaves is not None else [3, 6, 12, 24]
@@ -38,7 +39,7 @@ Separated from the environment code because it got too messy.
 
         self.sanity_check()
 
-        self._noise_map: list[list[float]] | None = None
+        self.noise_map: NoiseMap = NoiseMap(environment.x_size, environment.y_size)
 
     # region - Getters
     @property
@@ -60,10 +61,6 @@ Separated from the environment code because it got too messy.
     @property
     def hill_height(self) -> float:
         return self._hill_height
-
-    @property
-    def noise_map(self) -> list[list[float]]:
-        return [row[:] for row in self._noise_map]
 
     # endregion - Getters
 
@@ -146,10 +143,8 @@ Should be called after changing any values.
 
         largest_value = sqrt(center_x * center_x + center_y * center_y)
 
-        self._noise_map = []
+        self.noise_map.clear()
         for y in range(self.environment.y_size):
-            row = []
-
             for x in range(self.environment.x_size):
                 value = largest_value - sqrt((x - center_x) ** 2 + (y - center_y) ** 2)
                 value /= largest_value
@@ -157,30 +152,25 @@ Should be called after changing any values.
                 for i, noise in enumerate(all_noise, start=2):
                     value += noise([x / self.environment.x_size, y / self.environment.y_size])
 
-                row.append(value)
-
-            self._noise_map.append(row)
+                self.noise_map[x, y] = value
 
         # Normalise
-        abs_min_value = abs(min([min(row) for row in self._noise_map]))
-        self._noise_map = [[pixel + abs_min_value for pixel in row] for row in self._noise_map]
-        max_value = abs(max([max(row) for row in self._noise_map]))
-        self._noise_map = [[pixel / max_value for pixel in row] for row in self._noise_map]
+        self.noise_map.normalise_values()
 
         # Now in date
         self.__out_of_date = False
 
-    def generate_terrain(self):
+    def generate(self):
         """
 Sets the terrain parameter in every grid square of the environment according to the noise map.
         """
 
-        assert self._noise_map is not None, "Noise map not generated, please call generate_noise_map before this"
+        assert self.noise_map is not None, "Noise map not generated, please call generate_noise_map before this"
         assert self.__out_of_date, "Current noise map is out of date, please call generate_noise_map before this"
 
         for y in range(self.environment.y_size):
             for x in range(self.environment.x_size):
-                value = self.noise_map[y][x]
+                value = self.noise_map[x, y]
 
                 terrain_type = GridSquareTerrain.CLEAR
                 if value > self._snow_height:
