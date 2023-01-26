@@ -67,13 +67,17 @@ Returns all values in the noise map to 0.
 
         self._noise_map: list[list[float]] = [[0 for _ in range(self._x_size)] for _ in range(self._y_size)]
 
-    def normalise_values(self) -> None:
+    def normalise_values(self, make_min_0: bool = True) -> None:
         """
 Forces every value to be between 0 and 1, inclusive.
+        :param make_min_0: If true then finds the min value in the noise map and makes it 0 and chances every other
+        value accordingly.
         """
 
-        abs_min_value = abs(min([min([value for value in row if not math.isinf(value)]) for row in self._noise_map]))
-        self._noise_map = [[value + abs_min_value for value in row] for row in self._noise_map]
+        if make_min_0:
+            min_value = min([min([value for value in row if not math.isinf(value)]) for row in self._noise_map])
+            min_value = -min_value
+            self._noise_map = [[value + min_value for value in row] for row in self._noise_map]
 
         max_value = max([max([value for value in row if not math.isinf(value)]) for row in self._noise_map])
         self._noise_map = [[value / max_value for value in row] for row in self._noise_map]
