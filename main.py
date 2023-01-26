@@ -16,7 +16,7 @@ def main():
     terrain_generator.generate()
 
     # Tree Generator
-    tree_generator = TreeGenerator(env, seed = 1)
+    tree_generator = TreeGenerator(env, seed=1)
     tree_generator.generate_noise_map()
     tree_generator.generate()
 
