@@ -131,7 +131,7 @@ Honestly I think this is unnecessary.
 
     def generate_noise_map(self):
         """
-Generates the noise map using the information given upon initialisation.
+Generates the noise map using the information stored.
 Should be called after changing any values.
         """
 
