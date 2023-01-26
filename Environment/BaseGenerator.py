@@ -16,13 +16,6 @@ Used to generate specific aspects of the environment, e.g. terrain.
 
         self.noise_map: NoiseMap | None = None
 
-    @property
-    def noise_map(self) -> NoiseMap | None:
-        if self.noise_map is None:
-            return None
-
-        return self.noise_map
-
     def generate_noise_map(self):
         raise NotImplementedError
 
