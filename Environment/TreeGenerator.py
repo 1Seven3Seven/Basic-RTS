@@ -3,8 +3,7 @@ from math import sqrt
 
 from perlin_noise import PerlinNoise
 
-from . import BaseGenerator
-from . import Environment
+from . import BaseGenerator, Environment
 from .EnvironmentData import GridSquareTerrain, GridSquareStructures
 
 
