@@ -1,33 +1,46 @@
 import matplotlib.pyplot as plt
 from AStar import AStar
+from time import perf_counter as pc
 
 from Environment import Environment, TerrainGenerator, TreeGenerator, StoneGenerator
 from Environment.EnvironmentData import GridSquareTerrain, GridSquareStructures
 
 
 def main():
+    very_start = pc()
+
     # Environment
+    start = pc()
     env = Environment(100, 100)
     env.set_player_base(1, 1)
     env.set_player_base(env.x_size - 3, env.y_size - 3)
+    print("Environment Setup".ljust(30), pc() - start)
 
     # Terrain Generator
+    start = pc()
     terrain_generator = TerrainGenerator(env, seed=1)
     terrain_generator.generate_noise_map()
     terrain_generator.generate()
+    print("Terrain Generator".ljust(30), pc() - start)
 
     # Tree Generator
+    start = pc()
     tree_generator = TreeGenerator(env, seed=1)
     tree_generator.generate_noise_map()
     tree_generator.generate()
+    print("Tree Generator".ljust(30), pc() - start)
 
     # Stone Generator
+    start = pc()
     stone_generator = StoneGenerator(env, seed=1)
     stone_generator.generate_noise_map()
     stone_generator.generate()
+    print("Stone Generator".ljust(30), pc() - start)
 
     # Updating connections
+    start = pc()
     env.update_node_connections()
+    print("Updating Node Connections".ljust(30), pc() - start)
 
     # Colours
     terrain_colours = {
@@ -44,6 +57,7 @@ def main():
     }
 
     # Drawing the environment
+    start = pc()
     colour_map = [[(0, 0, 0) for _ in range(env.x_size)] for _ in range(env.y_size)]
     for y in range(env.y_size):
         for x in range(env.x_size):
@@ -54,14 +68,21 @@ def main():
 
             # Then terrain
             colour_map[y][x] = terrain_colours[env[x, y].terrain]
+    print("Drawing Environment".ljust(30), pc() - start)
 
     # Pathfinding
+    start = pc()
     a_star = AStar(start=env[1, 1], end=env[env.x_size - 3, env.y_size - 3])
     path = a_star.find_path()
+    print("Path Finding".ljust(30), pc() - start)
+    start = pc()
     for node in path:
         colour = list(colour_map[node.y_position][node.x_position])
         colour = [value - 75 if value - 75 > 0 else 0 for value in colour]
         colour_map[node.y_position][node.x_position] = tuple(colour)
+    print("Drawing Path".ljust(30), pc() - start)
+
+    print("Total Time".ljust(30), pc() - very_start)
 
     # Displaying the environment
     plt.imshow(colour_map)
