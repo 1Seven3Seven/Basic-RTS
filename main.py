@@ -1,7 +1,6 @@
 from time import perf_counter as pc
 
 import matplotlib.pyplot as plt
-from AStar import AStar
 
 from environment import Environment
 from environment.EnvironmentData import GridSquareTerrain, GridSquareStructures
@@ -71,18 +70,6 @@ def main():
             # Then terrain
             colour_map[y][x] = terrain_colours[env[x, y].terrain]
     print("Drawing Environment".ljust(30), pc() - start)
-
-    # # Pathfinding
-    # start = pc()
-    # a_star = AStar(start=env[1, 1], end=env[env.x_size - 3, env.y_size - 3])
-    # path = a_star.find_path()
-    # print("Path Finding".ljust(30), pc() - start)
-    # start = pc()
-    # for node in path:
-    #     colour = list(colour_map[node.y_position][node.x_position])
-    #     colour = [value - 75 if value - 75 > 0 else 0 for value in colour]
-    #     colour_map[node.y_position][node.x_position] = tuple(colour)
-    # print("Drawing Path".ljust(30), pc() - start)
 
     print("Total Time".ljust(30), pc() - very_start)
 
