@@ -60,4 +60,18 @@ Please don't set bases where there are already bases, this is undefined behaviou
 Updates the weights on all node connections based off of the terrain and structure values.
         """
 
-        ...
+        for y in range(self.y_size):
+            for x in range(self.x_size):
+                my_potential = self[x, y].terrain.weight + self[x, y].structure.weight
+
+                other_node: GridSquare
+                for other_node in self[x, y].get_connected_nodes():
+                    other_potential = other_node.terrain.weight + other_node.structure.weight
+
+                    connection = self[x, y].find_connection_with(other_node)
+
+                    if my_potential > connection.weight:
+                        connection.weight = my_potential
+
+                    if other_potential > connection.weight:
+                        connection.weight = other_potential
