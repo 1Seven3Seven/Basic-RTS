@@ -59,7 +59,9 @@ def main():
     a_star = AStar(start=env[1, 1], end=env[env.x_size - 3, env.y_size - 3])
     path = a_star.find_path()
     for node in path:
-        colour_map[node.y_position][node.x_position] = (255, 0, 255)
+        colour = list(colour_map[node.y_position][node.x_position])
+        colour = [value - 75 if value - 75 > 0 else 0 for value in colour]
+        colour_map[node.y_position][node.x_position] = tuple(colour)
 
     # Displaying the environment
     plt.imshow(colour_map)
