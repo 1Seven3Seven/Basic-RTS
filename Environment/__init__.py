@@ -13,3 +13,4 @@ from .BaseGenerator import BaseGenerator
 # Generators
 from .TerrainGenerator import TerrainGenerator
 from .TreeGenerator import TreeGenerator
+from .StoneGenerator import StoneGenerator
