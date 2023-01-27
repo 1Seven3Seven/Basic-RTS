@@ -19,7 +19,7 @@ class TreeGenerator(BaseGenerator):
                  clear_terrain_base_chance: float = 0.1,
                  hill_terrain_base_chance: float = 0.05,
                  mountain_terrain_base_chance: float = 0.001,
-                 snow_terrain_base_chance: float = -1
+                 snow_terrain_base_chance: float = -1.
                  ):
         """
 Allows for the generation of trees for the given environment.
