@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from Environment import Environment, TerrainGenerator, TreeGenerator
+from Environment import Environment, TerrainGenerator, TreeGenerator, StoneGenerator
 from Environment.EnvironmentData import GridSquareTerrain, GridSquareStructures
 
 
@@ -19,6 +19,11 @@ def main():
     tree_generator = TreeGenerator(env, seed=1)
     tree_generator.generate_noise_map()
     tree_generator.generate()
+
+    # Stone Generator
+    stone_generator = StoneGenerator(env, seed=1)
+    stone_generator.generate_noise_map()
+    stone_generator.generate()
 
     # Colours
     terrain_colours = {
