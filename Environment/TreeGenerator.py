@@ -60,6 +60,8 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         # If the parameters have been changed and the noise map hasn't been regenerated
         self.__out_of_date: bool = True
 
+        self.sanity_check()
+
     # region - Getters
     @property
     def seed(self) -> int:
