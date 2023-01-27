@@ -286,6 +286,7 @@ Ignores any grid squares that already have a structure.
         # Kinda seedy
         random.seed(self._seed)
 
+        # Generate the trees
         for y in range(self.environment.y_size):
             for x in range(self.environment.x_size):
                 number = random.random()
@@ -298,3 +299,66 @@ Ignores any grid squares that already have a structure.
 
                 if number < self.noise_map[x, y]:
                     self.environment[x, y].structure = GridSquareStructures.TREE
+
+        # Check for the min and max number of trees
+        for location in self.environment.player_base_locations:
+            grid_squares_with_trees = []
+
+            y_min = location[1] - self._player_base_radius
+            y_min = y_min if y_min > 0 else 0
+            y_max = location[1] + self._player_base_radius + 1
+            y_max = y_max if y_max < self.environment.y_size else self.environment.y_size
+
+            x_min = location[0] - self._player_base_radius
+            x_min = x_min if x_min > 0 else 0
+            x_max = location[0] + self._player_base_radius + 1
+            x_max = x_max if x_max < self.environment.y_size else self.environment.x_size
+
+            for y in range(y_min, y_max):
+                for x in range(x_min, x_max):
+                    distance = sqrt((location[0] - x) ** 2 + (location[1] - y) ** 2)
+
+                    if distance > self._player_base_radius:
+                        continue
+
+                    if self.environment[x, y].structure == GridSquareStructures.TREE:
+                        grid_squares_with_trees.append(self.environment[x, y])
+
+            # Too many trees
+            if len(grid_squares_with_trees) > self._player_base_max_num_trees:
+                # Get the number of trees to remove
+                num_to_remove = len(grid_squares_with_trees) - self._player_base_max_num_trees
+
+                # Shuffle trees
+                random.shuffle(grid_squares_with_trees)
+
+                # Remove trees
+                for i in range(num_to_remove):
+                    grid_squares_with_trees[i].structure = GridSquareStructures.NONE
+
+            # Too little trees
+            elif len(grid_squares_with_trees) < self._player_base_min_num_trees:
+                # Get the number of trees to add
+                num_to_add = self._player_base_min_num_trees - len(grid_squares_with_trees) + 1
+
+                # Get all grid squares with no structures
+                grid_squares_with_no_structures = []
+
+                for y in range(y_min, y_max):
+                    for x in range(x_min, x_max):
+                        distance = sqrt((location[0] - x) ** 2 + (location[1] - y) ** 2)
+
+                        if distance > self._player_base_radius:
+                            continue
+
+                        if self.environment[x, y].structure == GridSquareStructures.NONE:
+                            grid_squares_with_no_structures.append(self.environment[x, y])
+
+                # Prevent index errors
+                if num_to_add > len(grid_squares_with_no_structures):
+                    num_to_add = len(grid_squares_with_no_structures)
+
+                # Shuffle and add
+                random.shuffle(grid_squares_with_no_structures)
+                for i in range(num_to_add):
+                    grid_squares_with_no_structures[i].structure = GridSquareStructures.TREE
