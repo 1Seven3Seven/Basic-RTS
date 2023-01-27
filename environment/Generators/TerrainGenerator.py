@@ -3,13 +3,13 @@ from math import sqrt
 from perlin_noise import PerlinNoise
 
 from . import BaseGenerator
-from . import Environment
-from .EnvironmentData import GridSquareTerrain
+from .. import environment
+from ..EnvironmentData import GridSquareTerrain
 
 
 class TerrainGenerator(BaseGenerator):
     def __init__(self,
-                 environment: Environment,
+                 environment: environment,
                  seed: int = 1,
                  octaves: list[int] | None = None,
                  snow_height: float = 0.9,

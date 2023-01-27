@@ -1,9 +1,11 @@
-import matplotlib.pyplot as plt
-from AStar import AStar
 from time import perf_counter as pc
 
-from Environment import Environment, TerrainGenerator, TreeGenerator, StoneGenerator
-from Environment.EnvironmentData import GridSquareTerrain, GridSquareStructures
+import matplotlib.pyplot as plt
+from AStar import AStar
+
+from environment import Environment
+from environment.EnvironmentData import GridSquareTerrain, GridSquareStructures
+from environment.Generators import TerrainGenerator, TreeGenerator, StoneGenerator
 
 
 def main():

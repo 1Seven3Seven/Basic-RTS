@@ -2,13 +2,14 @@ from math import sqrt
 
 from perlin_noise import PerlinNoise
 
-from . import BaseGenerator, Environment
-from .EnvironmentData import GridSquareTerrain, GridSquareStructures
+from . import BaseGenerator
+from .. import environment
+from ..EnvironmentData import GridSquareTerrain, GridSquareStructures
 
 
 class StoneGenerator(BaseGenerator):
     def __init__(self,
-                 environment: Environment,
+                 environment: environment,
                  seed: int = 1,
                  octaves: list[int] | None = None,
                  player_base_radius: int = 30,
