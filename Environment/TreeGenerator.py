@@ -32,7 +32,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         Default is [5, 10]
         :param player_base_radius: The radius for different spawn chances of trees.
         :param player_base_tree_chance: The spawn chance of trees, regardless of terrain, around a player base.
-        Overrides the terrain and perlin noise chances if larger than or equal to 0.
+        Overrides the terrain chances if larger than or equal to 0.
         If negative then this is ignored.
         :param player_base_min_num_trees: The minimum number of trees around a player base.
         :param player_base_max_num_trees: The maximum number of trees around a player base.
