@@ -30,6 +30,7 @@ Separated from the environment code because it got too messy.
 
         self._seed: int = seed
         self._octaves: list[int] = octaves if octaves is not None else [3, 6, 12, 24]
+
         self._snow_height: float = snow_height
         self._mountain_height: float = mountain_height
         self._hill_height: float = hill_height
