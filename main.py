@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from AStar import AStar
 
 from Environment import Environment, TerrainGenerator, TreeGenerator, StoneGenerator
 from Environment.EnvironmentData import GridSquareTerrain, GridSquareStructures
@@ -25,6 +26,9 @@ def main():
     stone_generator.generate_noise_map()
     stone_generator.generate()
 
+    # Updating connections
+    env.update_node_connections()
+
     # Colours
     terrain_colours = {
         GridSquareTerrain.CLEAR: (70, 110, 45),
@@ -50,6 +54,12 @@ def main():
 
             # Then terrain
             colour_map[y][x] = terrain_colours[env[x, y].terrain]
+
+    # Pathfinding
+    a_star = AStar(start=env[1, 1], end=env[env.x_size - 3, env.y_size - 3])
+    path = a_star.find_path()
+    for node in path:
+        colour_map[node.y_position][node.x_position] = (255, 0, 255)
 
     # Displaying the environment
     plt.imshow(colour_map)
