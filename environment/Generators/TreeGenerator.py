@@ -9,6 +9,10 @@ from ..EnvironmentData import GridSquareTerrain, GridSquareStructures
 
 
 class TreeGenerator(BaseGenerator):
+    """
+Allows for the generation of trees for the given environment.
+    """
+
     def __init__(self,
                  environment: Environment,
                  seed: int = 1,
@@ -23,7 +27,6 @@ class TreeGenerator(BaseGenerator):
                  snow_terrain_base_chance: float = -1.
                  ):
         """
-Allows for the generation of trees for the given environment.
 Negative values for the base terrain chances means don't spawn trees on that type of terrain.
     The default for snow is -1, so don't spawn trees on snow.
         :param environment: The environment to generate the trees for.

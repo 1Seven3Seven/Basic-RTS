@@ -8,6 +8,10 @@ from ..EnvironmentData import GridSquareTerrain
 
 
 class TerrainGenerator(BaseGenerator):
+    """
+Allows for the generation of terrain for the given environment.
+    """
+
     def __init__(self,
                  environment: Environment,
                  seed: int = 1,
@@ -16,7 +20,6 @@ class TerrainGenerator(BaseGenerator):
                  mountain_height: float = 0.75,
                  hill_height: float = 0.5):
         """
-Allows for the generation of terrain for the given environment.
 Separated from the environment code because it got too messy.
         :param environment: The environment to generate the terrain for.
         :param seed: The seed to use when using random numbers. Same seed -> same result.

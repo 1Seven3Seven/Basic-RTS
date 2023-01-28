@@ -4,10 +4,13 @@ from .. import NoiseMap, Environment
 
 
 class BaseGenerator(ABC):
-    def __init__(self, environment: Environment):
-        """
+    """
 A base class of an environment generator.
 Used to generate specific aspects of the environment, e.g. terrain.
+    """
+
+    def __init__(self, environment: Environment):
+        """
         :param environment: The environment the generator works on.
         """
 

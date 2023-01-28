@@ -8,6 +8,10 @@ from ..EnvironmentData import GridSquareTerrain, GridSquareStructures
 
 
 class StoneGenerator(BaseGenerator):
+    """
+Allows for the generation of stone deposits for the given environment.
+    """
+
     def __init__(self,
                  environment: Environment,
                  seed: int = 1,
@@ -18,7 +22,6 @@ class StoneGenerator(BaseGenerator):
                  mountain_terrain_base_chance: float = 0.15,
                  snow_terrain_base_chance: float = 0.25):
         """
-Allows for the generation of stone deposits for the given environment.
 Negative values for the base terrain chances means don't spawn stone deposits on that type of terrain.
         :param environment: The environment to generate stone deposits for.
         :param seed: The seed to use when using random numbers.
