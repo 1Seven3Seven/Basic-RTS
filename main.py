@@ -24,7 +24,7 @@ def main():
     # Generator Handler
     start = pc()
     generator_handler = GeneratorHandler(
-        TerrainGenerator(env),
+        TerrainGenerator(env),  # Should come first
         TreeGenerator(env),
         StoneGenerator(env)
     )
