@@ -2,6 +2,8 @@
 # ToDo: Map creating tool
 # ToDo: Create a save format for maps that is easily upgradable
 
+from time import perf_counter as pc
+
 import matplotlib.pyplot as plt
 
 from environment import Environment
@@ -10,27 +12,43 @@ from environment.Generators import TerrainGenerator, TreeGenerator, StoneGenerat
 
 
 def main():
+    very_start = pc()
+
+    # Environment
+    start = pc()
     env = Environment(100, 100)
     env.set_player_base(1, 1)
     env.set_player_base(env.x_size - 3, env.y_size - 3)
+    print("Environment Setup".ljust(30), pc() - start)
 
+    # Generator Handler
+    start = pc()
     generator_handler = GeneratorHandler(
-        terrain_generator := TerrainGenerator(env),
-        tree_generator := TreeGenerator(env),
-        stone_generator := StoneGenerator(env)
+        TerrainGenerator(env),
+        TreeGenerator(env),
+        StoneGenerator(env)
     )
+    print("Generator Setup".ljust(30), pc() - start)
 
-    # generator_handler.generate_noise_maps()
-    # generator_handler.generate()
+    # Generating stuff
+    start = pc()
+    generator_handler.generate()
+    print("Initial Generate".ljust(30), pc() - start)
 
+    # Updating connections
+    start = pc()
+    env.update_node_connections()
+    print("Updating Node Connections".ljust(30), pc() - start)
 
-    terrain_generator.generate_noise_map()
-    terrain_generator.generate()
+    # Generating stuff
+    start = pc()
+    generator_handler.generate()
+    print("Second Generate".ljust(30), pc() - start)
 
-    tree_generator.generate_noise_map()
-    stone_generator.generate_noise_map()
-    tree_generator.generate()
-    stone_generator.generate()
+    # Updating connections
+    start = pc()
+    env.update_node_connections()
+    print("Updating Node Connections".ljust(30), pc() - start)
 
     # Colours
     terrain_colours = {
@@ -46,6 +64,8 @@ def main():
         GridSquareStructures.STONE: (0, 0, 255)
     }
 
+    # Drawing the environment
+    start = pc()
     colour_map = [[(0, 0, 0) for _ in range(env.x_size)] for _ in range(env.y_size)]
     for y in range(env.y_size):
         for x in range(env.x_size):
@@ -56,6 +76,9 @@ def main():
 
             # Then terrain
             colour_map[y][x] = terrain_colours[env[x, y].terrain]
+    print("Drawing Environment".ljust(30), pc() - start)
+
+    print("Total Time".ljust(30), pc() - very_start)
 
     # Displaying the environment
     plt.imshow(colour_map)
