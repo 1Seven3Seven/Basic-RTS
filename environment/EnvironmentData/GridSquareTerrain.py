@@ -20,7 +20,7 @@ The terrain that each grid square can have.
     def __init__(self, weight: int):
         self.weight = weight
 
-    CLEAR = 0
+    CLEAR = 1
 
     HILL = 6
     MOUNTAIN = 20
