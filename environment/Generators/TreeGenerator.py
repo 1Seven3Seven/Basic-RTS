@@ -60,9 +60,6 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         self._mountain_terrain_base_chance: float = mountain_terrain_base_chance
         self._snow_terrain_base_chance: float = snow_terrain_base_chance
 
-        # If the parameters have been changed and the noise map hasn't been regenerated
-        self.__out_of_date: bool = True
-
         self.sanity_check()
 
     # region - Getters
@@ -115,7 +112,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         assert new_seed > 0, "Seed must be a positive integer"
 
         self._seed = new_seed
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @octaves.setter
     def octaves(self, new_octaves: list[int]):
@@ -124,7 +121,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         assert [None for octave in new_octaves if octave > 0], "Octaves must be a list of positive integers"
 
         self._octaves = new_octaves.copy()
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @player_base_radius.setter
     def player_base_radius(self, new_radius: int):
@@ -132,7 +129,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         assert new_radius > 0, "Player base radius must be a positive integer"
 
         self._player_base_radius = new_radius
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @player_base_tree_chance.setter
     def player_base_tree_chance(self, new_chance: float):
@@ -140,7 +137,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         assert new_chance <= 1, "Base tree chance must be a float in the range (-inf, 1]"
 
         self._player_base_tree_chance = new_chance
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @player_base_min_num_trees.setter
     def player_base_min_num_trees(self, new_min: int):
@@ -148,7 +145,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         assert new_min >= 0, "Min number of trees must be a positive integer"
 
         self._player_base_min_num_trees = new_min
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @player_base_max_num_trees.setter
     def player_base_max_num_trees(self, new_max: int):
@@ -158,7 +155,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
                                                            "than or equal to the min"
 
         self._player_base_max_num_trees = new_max
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @clear_terrain_base_chance.setter
     def clear_terrain_base_chance(self, new_chance: float):
@@ -166,7 +163,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         assert 0 <= new_chance <= 1, "Base clearing chance must be a float in the range (-inf, 1]"
 
         self._clear_terrain_base_chance = new_chance
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @hill_terrain_base_chance.setter
     def hill_terrain_base_chance(self, new_chance: float):
@@ -174,7 +171,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         assert new_chance <= 1, "Base hill chance must be a float in the range (-inf, 1]"
 
         self._hill_terrain_base_chance = new_chance
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @mountain_terrain_base_chance.setter
     def mountain_terrain_base_chance(self, new_chance: float):
@@ -182,7 +179,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         assert new_chance <= 1, "Base mountain chance must be a float in the range (-inf, 1]"
 
         self._mountain_terrain_base_chance = new_chance
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @snow_terrain_base_chance.setter
     def snow_terrain_base_chance(self, new_chance: float):
@@ -190,7 +187,7 @@ Negative values for the base terrain chances means don't spawn trees on that typ
         assert new_chance <= 1, "Base snow chance must be a float in the range (-inf, 1]"
 
         self._snow_terrain_base_chance = new_chance
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     # endregion - Setters
 
@@ -201,7 +198,7 @@ Runs a bunch of asserts checking for correct values.
 Honestly I think this is unnecessary.
         """
 
-        out_of_date_save = self.__out_of_date
+        self.save_out_of_date()
 
         self.seed = self._seed
         self.octaves = self._octaves
@@ -214,7 +211,7 @@ Honestly I think this is unnecessary.
         self.mountain_terrain_base_chance = self._mountain_terrain_base_chance
         self.snow_terrain_base_chance = self._snow_terrain_base_chance
 
-        self.__out_of_date = out_of_date_save
+        self.return_out_of_date()
 
     def generate_noise_map(self):
         """
@@ -276,7 +273,7 @@ Should be called after changing any values.
         self.noise_map.normalise_values(make_min_0=False)
 
         # Now in date
-        self.__out_of_date = False
+        self.make_in_date()
 
     def generate(self):
         """
@@ -284,9 +281,9 @@ Sets the structure parameter in grid squares if a random number is less than the
 Ignores any grid squares that already have a structure.
         """
 
-        assert self.__out_of_date is False, "Current noise map is out of date, please call generate_noise_map before " \
-                                            "this"
-
+        assert self.is_out_of_date is False, "Current noise map is out of date, please call generate_noise_map before " \
+                                             "this"
+                                             
         # Kinda seedy
         random.seed(self._seed)
 

@@ -38,9 +38,6 @@ Separated from the environment code because it got too messy.
         self._mountain_height: float = mountain_height
         self._hill_height: float = hill_height
 
-        # If the parameters have been changed and the noise map hasn't been regenerated
-        self.__out_of_date: bool = True
-
         self.sanity_check()
 
     # region - Getters
@@ -73,7 +70,7 @@ Separated from the environment code because it got too messy.
         assert new_seed > 0, "Seed must be a positive integer"
 
         self._seed = new_seed
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @octaves.setter
     def octaves(self, new_octaves: list[int]):
@@ -82,7 +79,7 @@ Separated from the environment code because it got too messy.
         assert [None for octave in new_octaves if octave > 0], "Octaves must be a list of positive integers"
 
         self._octaves = new_octaves.copy()
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @snow_height.setter
     def snow_height(self, new_snow_height: float):
@@ -90,7 +87,7 @@ Separated from the environment code because it got too messy.
         assert 0 < new_snow_height < 1, "Snow height must be a float between 0 and 1"
 
         self._snow_height = new_snow_height
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @mountain_height.setter
     def mountain_height(self, new_mountain_height: float):
@@ -101,7 +98,7 @@ Separated from the environment code because it got too messy.
                                                         "than snow height"
 
         self._mountain_height = new_mountain_height
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     @hill_height.setter
     def hill_height(self, new_hill_height: float):
@@ -112,7 +109,7 @@ Separated from the environment code because it got too messy.
                                                         "mountain height"
 
         self._hill_height = new_hill_height
-        self.__out_of_date = True
+        self.make_out_of_date()
 
     # endregion - Setters
 
@@ -123,7 +120,7 @@ Runs a bunch of asserts checking for correct values.
 Honestly I think this is unnecessary.
         """
 
-        out_of_date_save = self.__out_of_date
+        self.save_out_of_date()
 
         self.seed = self._seed
         self.octaves = self._octaves
@@ -131,7 +128,7 @@ Honestly I think this is unnecessary.
         self.mountain_height = self._mountain_height
         self.hill_height = self._hill_height
 
-        self.__out_of_date = out_of_date_save
+        self.return_out_of_date()
 
     def generate_noise_map(self):
         """
@@ -161,15 +158,15 @@ Should be called after changing any values.
         self.noise_map.normalise_values()
 
         # Now in date
-        self.__out_of_date = False
+        self.make_in_date()
 
     def generate(self):
         """
 Sets the terrain parameter in every grid square of the environment according to the noise map.
         """
 
-        assert self.__out_of_date is False, "Current noise map is out of date, please call generate_noise_map before " \
-                                            "this"
+        assert self.is_out_of_date is False, "Current noise map is out of date, please call generate_noise_map before " \
+                                             "this"
 
         for y in range(self.environment.y_size):
             for x in range(self.environment.x_size):
