@@ -1,7 +1,6 @@
 from abc import ABC
 
-from .. import NoiseMap
-from .._Environment import Environment
+from .. import NoiseMap, Environment
 
 
 class BaseGenerator(ABC):

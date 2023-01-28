@@ -4,13 +4,13 @@ from math import sqrt
 from perlin_noise import PerlinNoise
 
 from . import BaseGenerator
-from .. import environment
+from .. import Environment
 from ..EnvironmentData import GridSquareTerrain, GridSquareStructures
 
 
 class TreeGenerator(BaseGenerator):
     def __init__(self,
-                 environment: environment,
+                 environment: Environment,
                  seed: int = 1,
                  octaves: list[int] | None = None,
                  player_base_radius: int = 30,
