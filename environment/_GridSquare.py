@@ -7,7 +7,6 @@ class GridSquare(Node):
     """
 A node that contains information about the state of the grid square.
     """
-    # ToDo: Reset terrain and structure and connection weights.
 
     def __init__(self, x_position: int, y_position: int):
         super().__init__(x_position, y_position)
