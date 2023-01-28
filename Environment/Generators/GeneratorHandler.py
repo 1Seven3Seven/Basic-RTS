@@ -1,8 +1,6 @@
 from . import BaseGenerator
 
 
-# ToDo: Find and run any terrain handlers first
-
 class GeneratorHandler:
     """
 Holds multiple generator objects and handles the creation of the noise map and changing of the environment for them all.
@@ -11,22 +9,18 @@ Holds multiple generator objects and handles the creation of the noise map and c
     def __init__(self, *args: BaseGenerator):
         """
 Takes in any number of BaseGenerator children.
+Generators that change terrain should come first so ones that use the terrain can work correctly.
         """
 
         self.generators: list[BaseGenerator] = list(args)
 
-    def generate_noise_maps(self):
-        """
-Gets all handled generators to create their noise maps.
-        """
-
-        for generator in self.generators:
-            generator.generate_noise_map()
-
     def generate(self):
         """
-Gets all handled generators to change the environment.
+Runs through every generator provided and if the noise map is out of date, generates it, otherwise just changes  the environment.
         """
 
         for generator in self.generators:
+            if generator.is_out_of_date:
+                generator.generate_noise_map()
+
             generator.generate()
