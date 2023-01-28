@@ -17,7 +17,7 @@ Allows for the generation of stone deposits for the given environment.
                  seed: int = 1,
                  octaves: list[int] | None = None,
                  player_base_radius: int = 30,
-                 clear_terrain_base_chance: float = -0.05,
+                 clear_terrain_base_chance: float = -1.,
                  hill_terrain_base_chance: float = 0.,
                  mountain_terrain_base_chance: float = 0.15,
                  snow_terrain_base_chance: float = 0.25):
