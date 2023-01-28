@@ -1,7 +1,7 @@
 from . import BaseGenerator
 
 
-# ToDo: Find and run any terraIn handlers first
+# ToDo: Find and run any terrain handlers first
 
 class GeneratorHandler:
     """
