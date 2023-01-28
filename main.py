@@ -20,7 +20,6 @@ def main():
         stone_generator := StoneGenerator(env)
     )
 
-    # ToDo: Find out why running generate_noise_map for all then generate gives a different outcome to the normal way.
     # generator_handler.generate_noise_maps()
     # generator_handler.generate()
 
@@ -29,9 +28,8 @@ def main():
     terrain_generator.generate()
 
     tree_generator.generate_noise_map()
-    tree_generator.generate()
-
     stone_generator.generate_noise_map()
+    tree_generator.generate()
     stone_generator.generate()
 
     # Colours

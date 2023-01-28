@@ -1,6 +1,8 @@
 from . import BaseGenerator
 
 
+# ToDo: Find and run any terraIn handlers first
+
 class GeneratorHandler:
     """
 Holds multiple generator objects and handles the creation of the noise map and changing of the environment for them all.
