@@ -13,4 +13,4 @@ from ._all_generators import all_generators
 from .GeneratorHandler import GeneratorHandler
 
 # Generator references
-import References
+import environment.Generators.References
