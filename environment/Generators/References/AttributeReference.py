@@ -27,11 +27,11 @@ Specifically:
         """
 
         # Necessary stuff
-        self.name = name
+        self.name: str = name
         self.data_type = data_type
 
         # Potentially necessary stuff
         self.sub_data_type = sub_data_type
-        self.min_value = min_value
-        self.max_value = max_value
-        self.value_increment = value_increment
+        self.min_value: int | float | None = min_value
+        self.max_value: int | float | None = max_value
+        self.value_increment: int | float | None = value_increment
