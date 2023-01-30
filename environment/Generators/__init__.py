@@ -11,3 +11,6 @@ from ._all_generators import all_generators
 
 # Finally a class to handle other generators
 from .GeneratorHandler import GeneratorHandler
+
+# Generator references
+import References
